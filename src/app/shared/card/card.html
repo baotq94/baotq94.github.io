@@ -1,0 +1,17 @@
+<article class="card">
+  @if (meta(); as meta) {
+    <p class="meta">{{ meta }}</p>
+  }
+  <h3 class="title">
+    @if (href(); as href) {
+      <a [href]="href" target="_blank" rel="noopener">
+        {{ title() }}<span class="visually-hidden"> (opens on Substack)</span>
+      </a>
+    } @else {
+      {{ title() }}
+    }
+  </h3>
+  @if (excerpt(); as excerpt) {
+    <p class="excerpt">{{ excerpt }}</p>
+  }
+</article>

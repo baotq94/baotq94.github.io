@@ -1,0 +1,14 @@
+<app-page-shell heading="Blog" lede="Every post links to the full version on Substack.">
+  @for (post of posts(); track post.slug) {
+    <app-card
+      [title]="post.title"
+      [meta]="post.date | date: 'mediumDate'"
+      [excerpt]="post.excerpt"
+      [href]="post.substackUrl"
+    />
+  } @empty {
+    @if (!isLoading()) {
+      <p class="empty">No posts yet.</p>
+    }
+  }
+</app-page-shell>
