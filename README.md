@@ -2,13 +2,13 @@
 
 ## Local commands
 
-| Command | What it does |
+| Command | When |
 |---|---|
-| `npm start` | Generates `public/posts.json`, then runs the dev server at <http://localhost:4200/> |
-| `npm run build` | Generates `public/posts.json`, then builds and prerenders every route into `dist/baotq94.github.io/browser/` |
-| `npm test` | Runs the posts pipeline tests (`node --test`), then the Angular unit tests (Vitest) |
-| `npm run posts` | Only regenerates `public/posts.json` |
-| `npm run test:posts` | Only runs the posts pipeline tests |
+| `npm start` | Developing. Dev server at <http://localhost:4200/>, reloads on save in `src/` |
+| `npm test` | Before pushing. Posts pipeline tests, then Angular unit tests |
+| `npm run build` | Checking the real output. Builds and prerenders into `dist/baotq94.github.io/browser/` |
+
+Edited a post while `npm start` is running? Run `npm run posts` in another terminal (triggers `scripts/build-posts.mjs`); the page reloads.
 
 ### Check the real static output GitHub Pages
 
@@ -33,10 +33,9 @@ lang: vi                                    # optional, language tag (default en
 ---
 ```
 
-`scripts/build-posts.mjs` validates every file and fails the build listing each bad file and field.
-Output is sorted newest first.
-
 ## Deploy
 
-Pushing to `main` runs `.github/workflows/deploy.yml`: `npm ci` → `npm run build` → GitHub Pages.
-The repo's **Settings → Pages → Source** must be set to **GitHub Actions**.
+`.github/workflows/deploy.yml` runs `npm ci` → `npm run build` → GitHub Pages when:
+
+- anything is pushed to `main` (a direct push, or merging a PR into `main`)
+- it's started by hand: Actions tab → *Deploy to GitHub Pages* → *Run workflow*
