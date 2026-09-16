@@ -1,0 +1,45 @@
+<app-page-shell heading="Books" lede="Books I've read, with short notes on what stuck.">
+  @for (group of years(); track group.year) {
+    <section class="year" [attr.aria-labelledby]="'year-' + group.year">
+      <h2 [id]="'year-' + group.year">{{ group.year }}</h2>
+      <ul role="list">
+        @for (book of group.books; track book.slug) {
+          <li>
+            <details class="book" [attr.lang]="book.lang">
+              <summary>
+                <span class="chevron" aria-hidden="true"></span>
+                <span class="heading">
+                  <span class="title">{{ book.title }}</span>
+                  <span class="author">{{ book.author }}</span>
+                </span>
+                @if (book.rating; as rating) {
+                  <span class="rating" lang="en">
+                    <span aria-hidden="true">{{ glyphs(rating) }}</span>
+                    <span class="visually-hidden">, rated {{ rating }} out of 5</span>
+                  </span>
+                }
+              </summary>
+              <div class="body">
+                <p>{{ book.summary }}</p>
+                @if (book.link; as link) {
+                  <p class="link" lang="en">
+                    <a [href]="link" target="_blank" rel="noopener">
+                      {{ host(link) }}<span class="visually-hidden"> (opens in a new tab)</span>
+                    </a>
+                  </p>
+                }
+                @if (book.hasReview) {
+                  <div class="review" [innerHTML]="book.review"></div>
+                }
+              </div>
+            </details>
+          </li>
+        }
+      </ul>
+    </section>
+  } @empty {
+    @if (!isLoading()) {
+      <app-card title="Coming soon" excerpt="Nothing here yet. In the meantime, the blog has related posts." />
+    }
+  }
+</app-page-shell>

@@ -11,6 +11,8 @@
 
 :root {
   color-scheme: light dark;
+  // Lets <details> content transition to height: auto (see books.scss). Chromium only.
+  interpolate-size: allow-keywords;
 
   --bg: #fafaf9;
   --fg: #1c1917;

@@ -1,12 +1,14 @@
-// Scans posts/*.md and writes public/posts.json (newest first).
+// Scans posts/*.md → public/posts.json and books/*.md → public/books.json (both newest first).
 // Runs before `npm start` and `npm run build`; exits 1 listing every invalid file.
 import { mkdir, writeFile } from 'node:fs/promises';
+import { loadBooks } from './books.mjs';
 import { loadPosts } from './posts.mjs';
 
-const POSTS_DIR = 'posts';
-const OUT_FILE = 'public/posts.json';
-
-const { posts, errors } = await loadPosts(POSTS_DIR);
+const [{ posts, errors: postErrors }, { books, errors: bookErrors }] = await Promise.all([
+  loadPosts('posts'),
+  loadBooks('books'),
+]);
+const errors = [...postErrors, ...bookErrors];
 
 if (errors.length) {
   const files = new Set(errors.map((e) => e.file));
@@ -16,5 +18,6 @@ if (errors.length) {
 }
 
 await mkdir('public', { recursive: true });
-await writeFile(OUT_FILE, JSON.stringify(posts, null, 2) + '\n');
-console.log(`build-posts: wrote ${posts.length} posts to ${OUT_FILE}`);
+await writeFile('public/posts.json', JSON.stringify(posts, null, 2) + '\n');
+await writeFile('public/books.json', JSON.stringify(books, null, 2) + '\n');
+console.log(`build-posts: wrote ${posts.length} posts to public/posts.json, ${books.length} books to public/books.json`);

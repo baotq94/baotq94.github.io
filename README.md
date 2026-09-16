@@ -33,6 +33,26 @@ lang: vi                                    # optional, language tag (default en
 ---
 ```
 
+## Books
+
+Add `books/<slug>.md`. `/books` groups them by the year of `finished`, newest first. The Markdown body is your review;
+leave it empty and the row only shows the summary.
+
+```yaml
+---
+title: Clean Architecture                   # required, text
+author: Robert C. Martin                    # required, text
+finished: 2025-03-12                        # required, YYYY-MM-DD; the year is the group
+summary: Two or three sentences on the book.   # required, text
+rating: 4                                   # optional, whole number 1–5
+tags: [architecture, dev]                   # optional, list of text
+link: https://www.goodreads.com/…           # optional, https URL
+lang: vi                                    # optional, language tag (default en)
+---
+
+My review. Optional.
+```
+
 ## Deploy
 
 `.github/workflows/deploy.yml` runs `npm ci` → `npm run build` → GitHub Pages when:

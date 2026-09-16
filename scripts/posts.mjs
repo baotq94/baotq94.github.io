@@ -1,4 +1,5 @@
 // Reads and validates posts/*.md front-matter. Used by build-posts.mjs and its tests.
+// The shared validators below are also used by books.mjs.
 import { readdir, readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, join } from 'node:path';
@@ -7,11 +8,11 @@ import matter from 'gray-matter';
 // gray-matter forwards options to its bundled js-yaml. JSON_SCHEMA keeps `date:` as the
 // literal text; the default schema would turn 2026-02-30 into a Date for March 2.
 const yaml = createRequire(import.meta.resolve('gray-matter'))('js-yaml');
-const MATTER_OPTIONS = { schema: yaml.JSON_SCHEMA };
+export const MATTER_OPTIONS = { schema: yaml.JSON_SCHEMA };
 
-const DEFAULT_LANG = 'en';
+export const DEFAULT_LANG = 'en';
 // Simplified BCP 47: language plus optional subtags, e.g. vi, ja, en-US, zh-Hant.
-const LANG_TAG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
+export const LANG_TAG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -26,9 +27,11 @@ export function parseDate(value) {
   return roundTrips ? date : null;
 }
 
-const isText = (value) => typeof value === 'string' && value.trim() !== '';
+export const isText = (value) => typeof value === 'string' && value.trim() !== '';
 
-function isHttpsUrl(value) {
+export const describe = (value) => (value === undefined ? 'missing' : `got ${JSON.stringify(value)}`);
+
+export function isHttpsUrl(value) {
   if (!isText(value)) return false;
   try {
     return new URL(value).protocol === 'https:';
@@ -52,8 +55,6 @@ export function parsePost(file, source) {
     fail('front-matter', `invalid YAML: ${err.message.split('\n')[0]}`);
     return { errors };
   }
-
-  const describe = (value) => (value === undefined ? 'missing' : `got ${JSON.stringify(value)}`);
 
   if (!isText(data.title)) fail('title', `required text, ${describe(data.title)}`);
   if (!isText(data.category)) fail('category', `required text, ${describe(data.category)}`);

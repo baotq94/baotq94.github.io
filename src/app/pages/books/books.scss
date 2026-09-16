@@ -1,0 +1,160 @@
+// Rhythm mirrors the blog list: each row is a card-height band (padding-block --space-4)
+// under a top hairline. Year groups are page sections, so they sit --space-6 apart.
+
+.year + .year {
+  margin-top: var(--space-6);
+}
+
+h2 {
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-3);
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.book {
+  border-top: var(--border);
+}
+
+summary {
+  display: grid;
+  grid-template-columns: var(--space-3) 1fr auto;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  // Blog list hover, verbatim: the title turns --accent. Focus ring is the global :focus-visible.
+  &:hover .title {
+    color: var(--accent);
+  }
+}
+
+// The title reads as the card's h3 (a <summary> may not hold a heading next to other content).
+// .chevron shares its font metrics so `1lh` centers the chevron on the title's first line.
+.title,
+.chevron {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  line-height: 1.2;
+}
+
+.title {
+  font-weight: 600;
+  color: var(--fg);
+  transition: color var(--transition);
+}
+
+// Same per-language heading rules as styles.scss applies to h1–h3.
+:lang(vi) :is(.title, .chevron) {
+  line-height: 1.3;
+}
+
+:lang(ja) :is(.title, .chevron) {
+  font-family: var(--font-serif-ja);
+  line-height: 1.4;
+}
+
+.chevron {
+  align-self: start;
+  display: grid;
+  place-items: center;
+  height: 1lh;
+
+  &::before {
+    content: '';
+    width: var(--space-2);
+    height: var(--space-2);
+    border: solid var(--muted);
+    border-width: 0 1px 1px 0;
+    transform: rotate(-45deg);
+    transition: transform 0.25s;
+  }
+
+  [open] > summary > &::before {
+    transform: rotate(45deg);
+  }
+}
+
+.author {
+  margin-inline-start: var(--space-2);
+  color: var(--muted);
+}
+
+.rating {
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+// Content column lines up with the title: chevron column + gap.
+.body {
+  display: grid;
+  gap: var(--space-3);
+  padding-inline-start: calc(2 * var(--space-3));
+  padding-block-end: var(--space-4);
+}
+
+.link {
+  font-size: var(--text-sm);
+}
+
+.review {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border);
+
+  // Rendered Markdown arrives via [innerHTML], outside view encapsulation.
+  ::ng-deep {
+    :is(ul, ol, blockquote, pre) {
+      margin: 0;
+    }
+
+    :is(ul, ol) {
+      padding-inline-start: var(--space-4);
+    }
+
+    :is(h1, h2, h3, h4) {
+      font-size: var(--text-base);
+    }
+
+    blockquote {
+      padding-inline-start: var(--space-3);
+      border-inline-start: var(--border);
+      color: var(--muted);
+    }
+
+    pre {
+      overflow-x: auto;
+    }
+  }
+}
+
+// Chromium animates open/close; Firefox and Safari snap open, by design.
+.book::details-content {
+  height: 0;
+  overflow: clip;
+  transition:
+    height 0.25s,
+    content-visibility 0.25s allow-discrete;
+}
+
+.book[open]::details-content {
+  height: auto;
+}
+
+// styles.scss already disables transitions on * / ::before / ::after; ::details-content is neither.
+@media (prefers-reduced-motion: reduce) {
+  .book::details-content {
+    transition: none;
+  }
+}
