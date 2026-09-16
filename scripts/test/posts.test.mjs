@@ -23,14 +23,16 @@ describe('loadPosts', () => {
       excerpt: '',
       substackUrl: 'https://baotq94.substack.com/p/newer',
       tags: [],
+      lang: 'en',
     });
+    assert.equal(posts[1].lang, 'vi');
   });
 
   it('reports every bad field in every bad file, with the filename', async () => {
     const { posts, errors } = await loadPosts(join(fixtures, 'invalid'));
     assert.deepEqual(posts, []);
     assert.deepEqual(fieldsByFile(errors), {
-      'malformed.md': ['substackUrl', 'date', 'tags'],
+      'malformed.md': ['substackUrl', 'date', 'tags', 'lang'],
       'missing-fields.md': ['title', 'category'],
     });
     for (const e of errors) assert.match(e.file, /fixtures\/invalid\/[\w-]+\.md$/);

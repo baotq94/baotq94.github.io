@@ -12,7 +12,7 @@ then deliberately cut down. What was dropped and why:
 | Style: Minimalism & Swiss | **Kept** — the core direction |
 | Pattern: scroll-triggered storytelling | **Dropped** — a reading site, not a narrative landing page |
 | Accent pink `#EC4899` | **Replaced** — 3.5:1 on light fails AA for text; one muted rust instead |
-| Libre Bodoni + Public Sans (Google Fonts) | **Replaced** — system serif + system sans, zero font requests |
+| Libre Bodoni + Public Sans (Google Fonts) | **Replaced** — one self-hosted variable serif for headings, system sans for body |
 | Card surface, muted surface, secondary, destructive | **Dropped** — background + hairline border is enough |
 | GSAP scroll reveal | **Dropped** — no motion beyond color transitions |
 
@@ -42,14 +42,28 @@ Contrast (against `--bg`): `--fg` ≥ 15:1, `--muted` ≥ 7:1, `--accent` ≥ 5.
 
 | Token | Stack | Use |
 |---|---|---|
-| `--font-serif` | `"Iowan Old Style", "Charter", "Sitka Text", Cambria, Georgia, serif` | Headings, site name |
+| `--font-serif` | `"Source Serif 4"`, then `var(--font-serif-ja)` | Headings, site name |
+| `--font-serif-ja` | `"Hiragino Mincho ProN", "Yu Mincho", YuMincho, "BIZ UDPMincho", "Noto Serif JP", "Noto Serif CJK JP", "Source Han Serif JP", "MS PMincho", serif` | Japanese fallback (no webfont) |
 | `--font-sans` | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` | Body, UI, meta |
+
+Heading webfont: `public/fonts/source-serif-4.woff2` (107 KB, OFL). Variable, `wght` 400–700 and `opsz` 16–48,
+subset to latin + latin-ext + vietnamese. `font-display: swap`, preloaded in `index.html`.
+Chosen over Literata (91 KB) after a side-by-side on `/type-test`: more compact, fewer heading wraps at 720px.
 
 Scale (rem, base 16px): `--text-sm 0.875` · `--text-base 1` · `--text-lg 1.25` · `--text-xl 1.75` · `--text-2xl 2.25`
 
 - Body line-height 1.6; headings 1.2, weight 600, serif.
 - Meta text: `--text-sm`, `--muted`, `tabular-nums` for dates.
 - No uppercase tracking tricks, no italics for decoration.
+
+### Per-language rules
+
+Post cards carry `lang` from front-matter; CSS keys off `:lang()`.
+
+- `vi`: headings line-height 1.3, so stacked marks (ệ, ự) don't touch the line above.
+- `ja`: whole heading uses `--font-serif-ja` (its Latin shares the CJK baseline, avoiding mixed-font baseline jumps);
+  line-height 1.8 body / 1.4 headings; `line-break: strict`, `word-break: auto-phrase`, `text-autospace: normal`.
+- Check changes on `/type-test` (noindex, not in nav).
 
 ## Spacing & layout
 
@@ -87,7 +101,7 @@ Spacing scale (rem): `--space-1 0.25` · `--space-2 0.5` · `--space-3 1` · `--
 
 - A second accent color, or using the accent for decoration
 - Gradients, shadows, glassmorphism, background images
-- Web font downloads
+- More than one heading webfont; any body webfont; a Japanese webfont
 - Icons as decoration; emoji as icons
 - Content wider than 720px
 - Filters, category pills, pagination or "load more" on the blog: it is one list, newest first, scroll to find

@@ -12,4 +12,6 @@ export class Card {
   readonly excerpt = input<string>();
   /** External URL; opens in a new tab. Omit for a non-link card. */
   readonly href = input<string>();
+  /** Language of the card's text; drives per-language typography. */
+  readonly lang = input<string>();
 }

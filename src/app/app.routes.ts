@@ -9,5 +9,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/investment/investment').then((m) => m.Investment),
   },
   { path: 'books', title: 'Books · baotq94', loadComponent: () => import('./pages/books/books').then((m) => m.Books) },
+  {
+    path: 'type-test',
+    title: 'Type test · baotq94',
+    loadComponent: () => import('./pages/type-test/type-test').then((m) => m.TypeTest),
+  },
   { path: '**', redirectTo: '' },
 ];

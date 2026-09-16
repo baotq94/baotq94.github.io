@@ -9,6 +9,10 @@ import matter from 'gray-matter';
 const yaml = createRequire(import.meta.resolve('gray-matter'))('js-yaml');
 const MATTER_OPTIONS = { schema: yaml.JSON_SCHEMA };
 
+const DEFAULT_LANG = 'en';
+// Simplified BCP 47: language plus optional subtags, e.g. vi, ja, en-US, zh-Hant.
+const LANG_TAG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
+
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /** Strict YYYY-MM-DD → UTC Date, or null if the text is malformed or not a real calendar day. */
@@ -65,6 +69,10 @@ export function parsePost(file, source) {
     fail('tags', `must be a list of text, ${describe(data.tags)}`);
   }
 
+  if (data.lang !== undefined && !(typeof data.lang === 'string' && LANG_TAG.test(data.lang))) {
+    fail('lang', `must be a language tag like "vi" or "ja", ${describe(data.lang)}`);
+  }
+
   if (errors.length) return { errors };
 
   return {
@@ -78,6 +86,7 @@ export function parsePost(file, source) {
       excerpt: data.excerpt?.trim() ?? '',
       substackUrl: data.substackUrl,
       tags: data.tags ?? [],
+      lang: data.lang ?? DEFAULT_LANG,
     },
   };
 }

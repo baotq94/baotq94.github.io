@@ -1,0 +1,11 @@
+<app-page-shell heading="Type test" lede="Same heading in each language at h1, h2 and body size.">
+  @for (sample of samples; track $index) {
+    <section class="sample" [attr.lang]="sample.lang">
+      <p class="label" lang="en">{{ sample.label }}</p>
+      <h1>{{ sample.heading }}</h1>
+      <h2>{{ sample.heading }}</h2>
+      <p class="serif-body">{{ sample.heading }}</p>
+      <p class="sans-body">{{ sample.body }}</p>
+    </section>
+  }
+</app-page-shell>

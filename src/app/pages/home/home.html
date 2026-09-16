@@ -14,6 +14,7 @@
       [meta]="post.date | date: 'mediumDate'"
       [excerpt]="post.excerpt"
       [href]="post.substackUrl"
+      [lang]="post.lang"
     />
   } @empty {
     <p class="empty">No posts yet.</p>

@@ -1,0 +1,31 @@
+.sample {
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-5);
+  border-top: var(--border);
+}
+
+.label {
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: var(--text-2xl);
+}
+
+h2 {
+  font-size: var(--text-xl);
+}
+
+.serif-body {
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+}
+
+// Same override as global :lang(ja) headings, so the body-size row compares like with like.
+:host ::ng-deep :lang(ja) .serif-body {
+  font-family: var(--font-serif-ja);
+}

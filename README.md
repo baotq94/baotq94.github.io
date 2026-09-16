@@ -40,11 +40,17 @@ category: Investment                        # required, text
 substackUrl: https://baotq94.substack.com/p/…  # required, https URL
 excerpt: Index funds, a savings rate, and time.  # optional
 tags: [investing, index-funds]              # optional, list of text
+lang: vi                                    # optional, language tag (default en); ja/vi get typography tweaks
 ---
 ```
 
 `scripts/build-posts.mjs` validates every file and fails the build listing each bad file and field.
 Output is sorted newest first.
+
+## Typography check
+
+`/type-test` shows the same heading in Vietnamese, Japanese and English at h1, h2 and body size.
+It is `noindex` and not linked from the nav.
 
 ## Deploy
 

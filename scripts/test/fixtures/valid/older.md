@@ -5,4 +5,5 @@ category: Notes
 excerpt: Unquoted date, all optional fields present.
 substackUrl: https://baotq94.substack.com/p/older
 tags: [a, b]
+lang: vi
 ---
