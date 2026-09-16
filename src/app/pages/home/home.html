@@ -20,15 +20,3 @@
     <p class="empty">No posts yet.</p>
   }
 </section>
-
-<nav aria-labelledby="sections-heading">
-  <h2 id="sections-heading">Sections</h2>
-  <ul class="sections">
-    @for (section of sections; track section.path) {
-      <li>
-        <a [routerLink]="section.path">{{ section.label }}</a>
-        <span>{{ section.description }}</span>
-      </li>
-    }
-  </ul>
-</nav>

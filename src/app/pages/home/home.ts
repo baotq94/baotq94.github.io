@@ -3,7 +3,6 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PostService } from '../../core/post.service';
 import { Card } from '../../shared/card/card';
-import { SECTIONS } from '../../sections';
 
 @Component({
   selector: 'app-home',
@@ -13,5 +12,4 @@ import { SECTIONS } from '../../sections';
 })
 export class Home {
   protected readonly latest = inject(PostService).latest(3);
-  protected readonly sections = SECTIONS;
 }

@@ -88,7 +88,7 @@ Spacing scale (rem): `--space-1 0.25` · `--space-2 0.5` · `--space-3 1` · `--
 
 **Page shell** (`app-page-shell`) — serif `h1` + optional one-line lede in `--muted`, then projected content.
 
-**Nav** — plain text links, active route in `--fg` with underline, others `--muted`.
+**Header** — sticky at the top on every page: site name + nav, opaque `--bg`, bottom hairline, no shadow. Nav is plain text links, active route in `--fg` with underline, others `--muted`. The header is the only navigation; pages do not repeat a section list.
 
 ## Interaction
 
