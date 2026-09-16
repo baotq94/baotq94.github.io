@@ -14,7 +14,7 @@ then deliberately cut down. What was dropped and why:
 | Accent pink `#EC4899` | **Replaced** — 3.5:1 on light fails AA for text; one muted rust instead |
 | Libre Bodoni + Public Sans (Google Fonts) | **Replaced** — one self-hosted variable serif for headings, system sans for body |
 | Card surface, muted surface, secondary, destructive | **Dropped** — background + hairline border is enough |
-| GSAP scroll reveal | **Dropped** — no motion beyond color transitions |
+| GSAP scroll reveal | **Dropped** — no decorative or scroll-driven motion (see Interaction) |
 
 ## Principles
 
@@ -92,10 +92,12 @@ Spacing scale (rem): `--space-1 0.25` · `--space-2 0.5` · `--space-3 1` · `--
 
 ## Interaction
 
-- Transitions: `color 150ms ease` and `border-color 150ms ease` only.
+- Transitions: `color 150ms ease` and `border-color 150ms ease` (`--transition`).
+- Motion is allowed only as feedback for a state change the user triggered (e.g. a `<details>` row opening:
+  height + chevron rotation over `--duration-collapse`, 0.25s). Never decorative, never on scroll or load.
 - Focus: `outline: 2px solid var(--accent); outline-offset: 2px` on `:focus-visible`. Never remove it.
 - Touch targets ≥ 44px tall for nav links.
-- `prefers-reduced-motion: reduce` disables transitions.
+- `prefers-reduced-motion: reduce` disables all transitions and motion, including the above.
 
 ## Anti-patterns
 

@@ -8,13 +8,11 @@
             <details class="book" [attr.lang]="book.lang">
               <summary>
                 <span class="chevron" aria-hidden="true"></span>
-                <span class="heading">
-                  <span class="title">{{ book.title }}</span>
-                  <span class="author">{{ book.author }}</span>
-                </span>
+                <h3 class="title">{{ book.title }}</h3>
+                <span class="author">{{ book.author }}</span>
                 @if (book.rating; as rating) {
                   <span class="rating" lang="en">
-                    <span aria-hidden="true">{{ glyphs(rating) }}</span>
+                    <span aria-hidden="true">{{ filled(rating) }}<span class="unfilled">{{ unfilled(rating) }}</span></span>
                     <span class="visually-hidden">, rated {{ rating }} out of 5</span>
                   </span>
                 }

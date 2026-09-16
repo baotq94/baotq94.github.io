@@ -16,8 +16,12 @@ export class Books {
   protected readonly years = this.bookService.byYear;
   protected readonly isLoading = this.bookService.isLoading;
 
-  protected glyphs(rating: number) {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  protected filled(rating: number) {
+    return '★'.repeat(rating);
+  }
+
+  protected unfilled(rating: number) {
+    return '☆'.repeat(5 - rating);
   }
 
   protected host(link: string) {
