@@ -1,7 +1,4 @@
-# baotq94.github.io
-
-Personal site at <https://baotq94.github.io/>. Angular 22, fully prerendered (`outputMode: "static"`), deployed to GitHub Pages.
-Design rules live in [`design-system/baotq94/MASTER.md`](design-system/baotq94/MASTER.md).
+# Personal site at <https://baotq94.github.io/>.
 
 ## Local commands
 
@@ -13,20 +10,12 @@ Design rules live in [`design-system/baotq94/MASTER.md`](design-system/baotq94/M
 | `npm run posts` | Only regenerates `public/posts.json` |
 | `npm run test:posts` | Only runs the posts pipeline tests |
 
-Use `npm start` / `npm run build`, not bare `ng serve` / `ng build`: the npm `pre*` hooks are what generate `posts.json`.
-
-### Check the real static output
-
-`ng serve` is not what gets deployed. Before pushing a change to routing or paths, serve the build the way GitHub Pages will:
+### Check the real static output GitHub Pages
 
 ```bash
 npm run build
 npx http-server dist/baotq94.github.io/browser -p 8080 -c-1
 ```
-
-Open <http://localhost:8080/>. `-c-1` disables caching so rebuilds show up immediately.
-`dist/baotq94.github.io/prerendered-routes.json` lists every route that got a static HTML file.
-Unknown URLs return a plain 404 locally; `404.html` is only added by the deploy workflow.
 
 ## Posts
 
@@ -46,11 +35,6 @@ lang: vi                                    # optional, language tag (default en
 
 `scripts/build-posts.mjs` validates every file and fails the build listing each bad file and field.
 Output is sorted newest first.
-
-## Typography check
-
-`/type-test` shows the same heading in Vietnamese, Japanese and English at h1, h2 and body size.
-It is `noindex` and not linked from the nav.
 
 ## Deploy
 
