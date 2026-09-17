@@ -1,6 +1,6 @@
 <section class="intro">
   <h1>Hi, I'm Bao.</h1>
-  <p>I write about software, long-term investing and the books I'm reading. Longer pieces live on Substack.</p>
+  <p>I write about software, parenting and the books I'm reading.</p>
 </section>
 
 <section aria-labelledby="latest-heading">
@@ -11,9 +11,9 @@
   @for (post of latest(); track post.slug) {
     <app-card
       [title]="post.title"
-      [meta]="post.date | date: 'mediumDate'"
+      [meta]="(post.date | date: 'mediumDate') + ' · ' + post.category"
       [excerpt]="post.excerpt"
-      [href]="post.substackUrl"
+      [link]="['/blog', post.slug]"
       [lang]="post.lang"
     />
   } @empty {

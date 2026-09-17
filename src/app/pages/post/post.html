@@ -1,0 +1,21 @@
+<p class="back"><a routerLink="/blog">← All posts</a></p>
+
+@if (post(); as post) {
+  <article [attr.lang]="post.lang">
+    <header class="head">
+      <p class="meta">{{ post.date | date: 'mediumDate' }} · {{ post.category }}</p>
+      <h1>{{ post.title }}</h1>
+      @if (post.excerpt) {
+        <p class="lede">{{ post.excerpt }}</p>
+      }
+    </header>
+    @if (post.html) {
+      <div class="prose" [innerHTML]="post.html"></div>
+    } @else {
+      <p class="empty" lang="en">Full post coming soon.</p>
+    }
+  </article>
+} @else if (!isLoading()) {
+  <h1>Post not found</h1>
+  <p class="empty">It may have moved. <a routerLink="/blog">See all posts</a>.</p>
+}

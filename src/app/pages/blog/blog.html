@@ -1,10 +1,10 @@
-<app-page-shell heading="Blog" lede="Every post links to the full version on Substack.">
+<app-page-shell heading="Blog">
   @for (post of posts(); track post.slug) {
     <app-card
       [title]="post.title"
-      [meta]="post.date | date: 'mediumDate'"
+      [meta]="(post.date | date: 'mediumDate') + ' · ' + post.category"
       [excerpt]="post.excerpt"
-      [href]="post.substackUrl"
+      [link]="['/blog', post.slug]"
       [lang]="post.lang"
     />
   } @empty {

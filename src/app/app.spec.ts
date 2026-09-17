@@ -18,7 +18,6 @@ describe('App', () => {
     expect(el.querySelector('.site-name')?.textContent).toContain('baotq94');
     expect([...el.querySelectorAll('nav a')].map((a) => a.textContent?.trim())).toEqual([
       'Blog',
-      'Investment',
       'Books',
     ]);
   });

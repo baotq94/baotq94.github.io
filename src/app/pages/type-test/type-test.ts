@@ -33,13 +33,13 @@ export class TypeTest {
     {
       lang: 'ja',
       label: 'Japanese + Latin, lang="ja" (override on)',
-      heading: '2026年、Substackで書き始めた理由',
+      heading: '2026年、ブログを書き始めた理由',
       body: 'Angular 22とGitHub Pagesで作った個人サイトです。',
     },
     {
       lang: null,
       label: 'Japanese + Latin, no lang (override off: Latin from the serif, kana from mincho)',
-      heading: '2026年、Substackで書き始めた理由',
+      heading: '2026年、ブログを書き始めた理由',
       body: 'Angular 22とGitHub Pagesで作った個人サイトです。',
     },
     {
