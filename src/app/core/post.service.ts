@@ -14,4 +14,8 @@ export class PostService {
   latest(count: number) {
     return computed(() => this.posts().slice(0, count));
   }
+
+  bySlug(slug: () => string) {
+    return computed(() => this.posts().find((post) => post.slug === slug()));
+  }
 }

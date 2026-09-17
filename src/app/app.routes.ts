@@ -4,9 +4,8 @@ export const routes: Routes = [
   { path: '', title: 'baotq94', loadComponent: () => import('./pages/home/home').then((m) => m.Home) },
   { path: 'blog', title: 'Blog · baotq94', loadComponent: () => import('./pages/blog/blog').then((m) => m.Blog) },
   {
-    path: 'investment',
-    title: 'Investment · baotq94',
-    loadComponent: () => import('./pages/investment/investment').then((m) => m.Investment),
+    path: 'blog/:slug',
+    loadComponent: () => import('./pages/post/post').then((m) => m.PostPage),
   },
   { path: 'books', title: 'Books · baotq94', loadComponent: () => import('./pages/books/books').then((m) => m.Books) },
   {

@@ -21,14 +21,15 @@ npx http-server dist/baotq94.github.io/browser -p 8080 -c-1
 
 ```yaml
 ---
-title: The case for a boring portfolio      # required, text (quote numbers: "1984")
+title: Why I keep a reading log             # required, text (quote numbers: "1984")
 date: 2026-09-12                            # required, YYYY-MM-DD, must be a real date
-category: Investment                        # required, text
-substackUrl: https://baotq94.substack.com/p/…  # required, https URL
-excerpt: Index funds, a savings rate, and time.  # optional
-tags: [investing, index-funds]              # optional, list of text
+category: Notes                             # required, text
+excerpt: Short notes compound.             # optional
+tags: [books, habits]                       # optional, list of text
 lang: vi                                    # optional, language tag (default en); ja/vi get typography tweaks
 ---
+
+The post body, in Markdown. Rendered at /blog/<file name without .md>/.
 ```
 
 ## Books

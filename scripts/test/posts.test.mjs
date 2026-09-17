@@ -21,9 +21,9 @@ describe('loadPosts', () => {
       date: '2026-10-02',
       category: 'Books',
       excerpt: '',
-      substackUrl: 'https://baotq94.substack.com/p/newer',
       tags: [],
       lang: 'en',
+      html: '<p>Quoted date, no excerpt or tags.</p>',
     });
     assert.equal(posts[1].lang, 'vi');
   });
@@ -32,7 +32,7 @@ describe('loadPosts', () => {
     const { posts, errors } = await loadPosts(join(fixtures, 'invalid'));
     assert.deepEqual(posts, []);
     assert.deepEqual(fieldsByFile(errors), {
-      'malformed.md': ['substackUrl', 'date', 'tags', 'lang'],
+      'malformed.md': ['date', 'tags', 'lang'],
       'missing-fields.md': ['title', 'category'],
     });
     for (const e of errors) assert.match(e.file, /fixtures\/invalid\/[\w-]+\.md$/);
@@ -57,7 +57,7 @@ describe('parsePost', () => {
   });
 
   it('rejects non-text titles such as bare numbers', () => {
-    const { errors } = parsePost('x.md', '---\ntitle: 1984\ndate: 2026-01-01\ncategory: Books\nsubstackUrl: https://a.b/\n---\n');
+    const { errors } = parsePost('x.md', '---\ntitle: 1984\ndate: 2026-01-01\ncategory: Books\n---\n');
     assert.deepEqual(errors.map((e) => e.field), ['title']);
   });
 });

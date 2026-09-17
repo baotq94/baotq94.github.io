@@ -1,9 +1,10 @@
-// Reads and validates posts/*.md front-matter. Used by build-posts.mjs and its tests.
+// Reads and validates posts/*.md: front-matter plus a Markdown body. Used by build-posts.mjs and its tests.
 // The shared validators below are also used by books.mjs.
 import { readdir, readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, join } from 'node:path';
 import matter from 'gray-matter';
+import { marked } from 'marked';
 
 // gray-matter forwards options to its bundled js-yaml. JSON_SCHEMA keeps `date:` as the
 // literal text; the default schema would turn 2026-02-30 into a Date for March 2.
@@ -48,9 +49,9 @@ export function parsePost(file, source) {
   const errors = [];
   const fail = (field, message) => errors.push({ file, field, message });
 
-  let data;
+  let data, content;
   try {
-    data = matter(source, MATTER_OPTIONS).data;
+    ({ data, content } = matter(source, MATTER_OPTIONS));
   } catch (err) {
     fail('front-matter', `invalid YAML: ${err.message.split('\n')[0]}`);
     return { errors };
@@ -58,7 +59,6 @@ export function parsePost(file, source) {
 
   if (!isText(data.title)) fail('title', `required text, ${describe(data.title)}`);
   if (!isText(data.category)) fail('category', `required text, ${describe(data.category)}`);
-  if (!isHttpsUrl(data.substackUrl)) fail('substackUrl', `required https URL, ${describe(data.substackUrl)}`);
 
   const date = parseDate(data.date);
   if (!date) fail('date', `required real calendar date as YYYY-MM-DD, ${describe(data.date)}`);
@@ -85,9 +85,9 @@ export function parsePost(file, source) {
       timestamp: date.getTime(),
       category: data.category.trim(),
       excerpt: data.excerpt?.trim() ?? '',
-      substackUrl: data.substackUrl,
       tags: data.tags ?? [],
       lang: data.lang ?? DEFAULT_LANG,
+      html: marked.parse(content, { async: false }).trim(),
     },
   };
 }

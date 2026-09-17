@@ -3,10 +3,8 @@
     <p class="meta">{{ meta }}</p>
   }
   <h3 class="title">
-    @if (href(); as href) {
-      <a [href]="href" target="_blank" rel="noopener">
-        {{ title() }}<span class="visually-hidden"> (opens on Substack)</span>
-      </a>
+    @if (link(); as link) {
+      <a [routerLink]="link">{{ title() }}</a>
     } @else {
       {{ title() }}
     }
