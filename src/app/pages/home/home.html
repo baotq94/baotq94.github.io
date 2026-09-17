@@ -11,7 +11,7 @@
   @for (post of latest(); track post.slug) {
     <app-card
       [title]="post.title"
-      [meta]="post.date | date: 'mediumDate'"
+      [meta]="(post.date | date: 'mediumDate') + ' · ' + post.category"
       [excerpt]="post.excerpt"
       [link]="['/blog', post.slug]"
       [lang]="post.lang"

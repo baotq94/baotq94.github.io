@@ -72,5 +72,20 @@ h1 {
       max-width: 100%;
       height: auto;
     }
+
+    // Translated posts: the original text follows the translation, set in its own language.
+    .original {
+      display: grid;
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+      padding-top: var(--space-4);
+      border-top: var(--border);
+    }
+
+    .source {
+      margin-top: var(--space-4);
+      color: var(--muted);
+      font-size: var(--text-sm);
+    }
   }
 }
