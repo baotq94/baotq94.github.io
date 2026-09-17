@@ -6,6 +6,26 @@ import matter from 'gray-matter';
 import { marked } from 'marked';
 import { DEFAULT_LANG, describe, isHttpsUrl, isText, LANG_TAG, MATTER_OPTIONS, parseDate } from './posts.mjs';
 
+const YEAR = /^\d{4}$/;
+
+/**
+ * `finished` is a full date or, when only the year is known, a bare year. YAML reads an unquoted
+ * year as a number, so 2026 and "2026" both work. Returns the value as text, or null if invalid.
+ */
+export function parseFinished(value) {
+  const text = Number.isInteger(value) ? String(value) : value;
+  return (typeof text === 'string' && YEAR.test(text)) || parseDate(text) ? text : null;
+}
+
+/** Year desc, then `order` asc (unordered books last), then finished desc. Mirrored in BookService. */
+export function compareBooks(a, b) {
+  const byYear = b.finished.slice(0, 4).localeCompare(a.finished.slice(0, 4));
+  if (byYear) return byYear;
+  const byOrder = (a.order ?? Infinity) - (b.order ?? Infinity);
+  if (byOrder) return byOrder;
+  return b.finished.localeCompare(a.finished);
+}
+
 /**
  * Validates one file. Returns { book, errors } where errors is a list of { file, field, message };
  * book is only set when errors is empty.
@@ -23,11 +43,15 @@ export function parseBook(file, source) {
   }
 
   if (!isText(data.title)) fail('title', `required text, ${describe(data.title)}`);
-  if (!isText(data.author)) fail('author', `required text, ${describe(data.author)}`);
+  if (data.author !== undefined && !isText(data.author)) fail('author', `must be text, ${describe(data.author)}`);
   if (!isText(data.summary)) fail('summary', `required text, ${describe(data.summary)}`);
 
-  const finished = parseDate(data.finished);
-  if (!finished) fail('finished', `required real calendar date as YYYY-MM-DD, ${describe(data.finished)}`);
+  const finished = parseFinished(data.finished);
+  if (!finished) fail('finished', `required year as YYYY or real calendar date as YYYY-MM-DD, ${describe(data.finished)}`);
+
+  if (data.order !== undefined && !(Number.isInteger(data.order) && data.order >= 1)) {
+    fail('order', `must be a whole number from 1, ${describe(data.order)}`);
+  }
 
   if (data.rating !== undefined && !(Number.isInteger(data.rating) && data.rating >= 1 && data.rating <= 5)) {
     fail('rating', `must be a whole number from 1 to 5, ${describe(data.rating)}`);
@@ -51,9 +75,9 @@ export function parseBook(file, source) {
     book: {
       slug: basename(file, '.md'),
       title: data.title.trim(),
-      author: data.author.trim(),
-      finished: data.finished,
-      timestamp: finished.getTime(),
+      author: data.author?.trim() ?? null,
+      finished,
+      order: data.order ?? null,
       summary: data.summary.trim(),
       rating: data.rating ?? null,
       tags: data.tags ?? [],
@@ -82,8 +106,7 @@ export async function loadBooks(dir) {
   const errors = results.flatMap((r) => r.errors);
   const books = results
     .flatMap((r) => (r.book ? [r.book] : []))
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .map(({ timestamp, ...book }) => book);
+    .sort(compareBooks);
 
   return { books, errors };
 }

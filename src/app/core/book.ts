@@ -1,9 +1,12 @@
 export interface Book {
   slug: string;
   title: string;
-  author: string;
-  /** ISO date, YYYY-MM-DD. Its year is the group the book is listed under. */
+  /** Null when unknown. */
+  author: string | null;
+  /** YYYY-MM-DD, or YYYY when only the year is known. Its year is the group the book is listed under. */
   finished: string;
+  /** Position within its year, lowest first. Null sorts after ordered books. */
+  order: number | null;
   summary: string;
   /** Whole number 1–5, or null when unrated. */
   rating: number | null;

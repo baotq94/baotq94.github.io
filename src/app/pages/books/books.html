@@ -9,7 +9,9 @@
               <summary>
                 <span class="chevron" aria-hidden="true"></span>
                 <h3 class="title">{{ book.title }}</h3>
-                <span class="author">{{ book.author }}</span>
+                @if (book.author; as author) {
+                  <span class="author">{{ author }}</span>
+                }
                 @if (book.rating; as rating) {
                   <span class="rating" lang="en">
                     <span aria-hidden="true">{{ filled(rating) }}<span class="unfilled">{{ unfilled(rating) }}</span></span>

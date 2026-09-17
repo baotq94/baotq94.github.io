@@ -35,14 +35,16 @@ lang: vi                                    # optional, language tag (default en
 
 ## Books
 
-Add `books/<slug>.md`. `/books` groups them by the year of `finished`, newest first. The Markdown body is your review;
-leave it empty and the row only shows the summary.
+Add `books/<slug>.md`. `/books` groups them by the year of `finished`, newest first; within a year, books are listed by
+`order` (books without one come last, newest `finished` first). The Markdown body is your review; leave it empty and the
+row only shows the summary.
 
 ```yaml
 ---
 title: Clean Architecture                   # required, text
-author: Robert C. Martin                    # required, text
-finished: 2025-03-12                        # required, YYYY-MM-DD; the year is the group
+author: Robert C. Martin                    # optional, text
+finished: "2025"                            # required, YYYY or YYYY-MM-DD; the year is the group
+order: 1                                    # optional, whole number from 1; position within the year
 summary: Two or three sentences on the book.   # required, text
 rating: 4                                   # optional, whole number 1–5
 tags: [architecture, dev]                   # optional, list of text
