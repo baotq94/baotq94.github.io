@@ -19,8 +19,6 @@ npx http-server dist/baotq94.github.io/browser -p 8080 -c-1
 
 ## Posts
 
-Posts are front-matter only; the full text lives on Substack. Add `posts/<slug>.md`:
-
 ```yaml
 ---
 title: The case for a boring portfolio      # required, text (quote numbers: "1984")
@@ -34,10 +32,6 @@ lang: vi                                    # optional, language tag (default en
 ```
 
 ## Books
-
-Add `books/<slug>.md`. `/books` groups them by the year of `finished`, newest first; within a year, books are listed by
-`order` (books without one come last, newest `finished` first). The Markdown body is your review; leave it empty and the
-row only shows the summary.
 
 ```yaml
 ---
