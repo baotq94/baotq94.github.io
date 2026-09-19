@@ -20,4 +20,6 @@ if (errors.length) {
 await mkdir('public', { recursive: true });
 await writeFile('public/posts.json', JSON.stringify(posts, null, 2) + '\n');
 await writeFile('public/books.json', JSON.stringify(books, null, 2) + '\n');
-console.log(`build-posts: wrote ${posts.length} posts to public/posts.json, ${books.length} books to public/books.json`);
+console.log(
+  `build-posts: wrote ${posts.length} posts to public/posts.json, ${books.length} books to public/books.json`,
+);

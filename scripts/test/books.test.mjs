@@ -14,7 +14,10 @@ describe('loadBooks', () => {
   it('passes valid files, sorts year desc then order asc, and renders the review', async () => {
     const { books, errors } = await loadBooks(join(fixtures, 'valid'));
     assert.deepEqual(errors, []);
-    assert.deepEqual(books.map((b) => b.slug), ['no-review', 'year-only-b', 'year-only-a', 'clean-architecture']);
+    assert.deepEqual(
+      books.map((b) => b.slug),
+      ['no-review', 'year-only-b', 'year-only-a', 'clean-architecture'],
+    );
     assert.deepEqual(books[3], {
       slug: 'clean-architecture',
       title: 'Clean Architecture',
@@ -75,7 +78,11 @@ describe('loadBooks', () => {
 });
 
 describe('parseFinished', () => {
-  for (const [input, expected] of [['2026', '2026'], [2026, '2026'], ['2024-02-29', '2024-02-29']]) {
+  for (const [input, expected] of [
+    ['2026', '2026'],
+    [2026, '2026'],
+    ['2024-02-29', '2024-02-29'],
+  ]) {
     it(`accepts ${JSON.stringify(input)}`, () => assert.equal(parseFinished(input), expected));
   }
   for (const bad of ['26', '2026-02', '2026-02-30', 202, 2026.5, undefined]) {
@@ -86,13 +93,19 @@ describe('parseFinished', () => {
 describe('parseBook', () => {
   it('reports YAML syntax errors instead of throwing', () => {
     const { errors } = parseBook('broken.md', '---\ntitle: [unclosed\n---\n');
-    assert.deepEqual(errors.map((e) => e.field), ['front-matter']);
+    assert.deepEqual(
+      errors.map((e) => e.field),
+      ['front-matter'],
+    );
   });
 
   for (const bad of [0, 2.5, '4']) {
     it(`rejects rating ${JSON.stringify(bad)}`, () => {
       const source = `---\ntitle: T\nauthor: A\nfinished: 2025-01-01\nsummary: S\nrating: ${JSON.stringify(bad)}\n---\n`;
-      assert.deepEqual(parseBook('x.md', source).errors.map((e) => e.field), ['rating']);
+      assert.deepEqual(
+        parseBook('x.md', source).errors.map((e) => e.field),
+        ['rating'],
+      );
     });
   }
 });

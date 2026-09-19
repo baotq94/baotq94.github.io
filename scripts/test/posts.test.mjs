@@ -14,7 +14,10 @@ describe('loadPosts', () => {
   it('passes valid files and sorts newest first by timestamp', async () => {
     const { posts, errors } = await loadPosts(join(fixtures, 'valid'));
     assert.deepEqual(errors, []);
-    assert.deepEqual(posts.map((p) => p.slug), ['newer', 'older']);
+    assert.deepEqual(
+      posts.map((p) => p.slug),
+      ['newer', 'older'],
+    );
     assert.deepEqual(posts[0], {
       slug: 'newer',
       title: 'Newer post',
@@ -44,7 +47,15 @@ describe('parseDate', () => {
     assert.equal(parseDate('2024-02-29')?.toISOString(), '2024-02-29T00:00:00.000Z');
   });
 
-  for (const bad of ['2026-9-5', '2026-02-30', '2026-13-01', 'Sep 5, 2026', '2026-09-05T10:00:00Z', 20260905, null]) {
+  for (const bad of [
+    '2026-9-5',
+    '2026-02-30',
+    '2026-13-01',
+    'Sep 5, 2026',
+    '2026-09-05T10:00:00Z',
+    20260905,
+    null,
+  ]) {
     it(`rejects ${JSON.stringify(bad)}`, () => assert.equal(parseDate(bad), null));
   }
 });
@@ -57,7 +68,13 @@ describe('parsePost', () => {
   });
 
   it('rejects non-text titles such as bare numbers', () => {
-    const { errors } = parsePost('x.md', '---\ntitle: 1984\ndate: 2026-01-01\ncategory: Books\n---\n');
-    assert.deepEqual(errors.map((e) => e.field), ['title']);
+    const { errors } = parsePost(
+      'x.md',
+      '---\ntitle: 1984\ndate: 2026-01-01\ncategory: Books\n---\n',
+    );
+    assert.deepEqual(
+      errors.map((e) => e.field),
+      ['title'],
+    );
   });
 });
