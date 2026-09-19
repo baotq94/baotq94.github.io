@@ -1,0 +1,18 @@
+{
+  // Prettier is the single formatter for this repo. Pinning it per-language
+  // stops VS Code from falling back to its built-in HTML/JS formatters, which
+  // ignore .prettierrc and reflow Angular control-flow blocks incorrectly.
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[scss]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // Use the repo's own prettier (package.json devDependency) rather than the
+  // version bundled with the extension, so editor and CI agree.
+  "prettier.prettierPath": "./node_modules/prettier"
+}

@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Fails if anything drifts from .prettierrc. Fix locally with `npm run format`.
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Test post/book parsers
+        run: npm run test:posts
+
+      # `prebuild` regenerates public/posts.json from posts/*.md
+      - name: Build
+        run: npm run build

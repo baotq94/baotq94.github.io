@@ -7,6 +7,12 @@
       "options": {
         "parser": "angular"
       }
+    },
+    {
+      "files": "*.md",
+      "options": {
+        "singleQuote": false
+      }
     }
   ]
 }
