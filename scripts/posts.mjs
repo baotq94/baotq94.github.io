@@ -30,7 +30,8 @@ export function parseDate(value) {
 
 export const isText = (value) => typeof value === 'string' && value.trim() !== '';
 
-export const describe = (value) => (value === undefined ? 'missing' : `got ${JSON.stringify(value)}`);
+export const describe = (value) =>
+  value === undefined ? 'missing' : `got ${JSON.stringify(value)}`;
 
 export function isHttpsUrl(value) {
   if (!isText(value)) return false;

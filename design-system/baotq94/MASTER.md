@@ -7,14 +7,14 @@ Global source of truth. Page-specific overrides go in `pages/<page>.md` and win 
 Generated with ui-ux-pro-max (`"personal blog minimal editorial" --design-system --variance 2 --motion 2 --density 2`),
 then deliberately cut down. What was dropped and why:
 
-| Generated | Decision |
-|---|---|
-| Style: Minimalism & Swiss | **Kept** — the core direction |
-| Pattern: scroll-triggered storytelling | **Dropped** — a reading site, not a narrative landing page |
-| Accent pink `#EC4899` | **Replaced** — 3.5:1 on light fails AA for text; one muted rust instead |
-| Libre Bodoni + Public Sans (Google Fonts) | **Replaced** — one self-hosted variable serif for headings, system sans for body |
-| Card surface, muted surface, secondary, destructive | **Dropped** — background + hairline border is enough |
-| GSAP scroll reveal | **Dropped** — no decorative or scroll-driven motion (see Interaction) |
+| Generated                                           | Decision                                                                         |
+| --------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Style: Minimalism & Swiss                           | **Kept** — the core direction                                                    |
+| Pattern: scroll-triggered storytelling              | **Dropped** — a reading site, not a narrative landing page                       |
+| Accent pink `#EC4899`                               | **Replaced** — 3.5:1 on light fails AA for text; one muted rust instead          |
+| Libre Bodoni + Public Sans (Google Fonts)           | **Replaced** — one self-hosted variable serif for headings, system sans for body |
+| Card surface, muted surface, secondary, destructive | **Dropped** — background + hairline border is enough                             |
+| GSAP scroll reveal                                  | **Dropped** — no decorative or scroll-driven motion (see Interaction)            |
 
 ## Principles
 
@@ -28,23 +28,23 @@ then deliberately cut down. What was dropped and why:
 Defined once in `src/styles.scss` on `:root`; dark values swap in under `prefers-color-scheme: dark`.
 Components use tokens only — never raw hex.
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `--bg` | `#FAFAF9` | `#111110` | Page background |
-| `--fg` | `#1C1917` | `#E7E5E4` | Body text, headings |
-| `--muted` | `#57534E` | `#A8A29E` | Meta text: dates, captions |
-| `--line` | `#E7E5E4` | `#292524` | Hairline borders, dividers |
-| `--accent` | `#B4441C` | `#E8845C` | Links, hover, focus ring |
+| Token      | Light     | Dark      | Use                        |
+| ---------- | --------- | --------- | -------------------------- |
+| `--bg`     | `#FAFAF9` | `#111110` | Page background            |
+| `--fg`     | `#1C1917` | `#E7E5E4` | Body text, headings        |
+| `--muted`  | `#57534E` | `#A8A29E` | Meta text: dates, captions |
+| `--line`   | `#E7E5E4` | `#292524` | Hairline borders, dividers |
+| `--accent` | `#B4441C` | `#E8845C` | Links, hover, focus ring   |
 
 Contrast (against `--bg`): `--fg` ≥ 15:1, `--muted` ≥ 7:1, `--accent` ≥ 5.5:1 in both modes — all pass WCAG AA for body text.
 
 ## Typography
 
-| Token | Stack | Use |
-|---|---|---|
-| `--font-serif` | `"Source Serif 4"`, then `var(--font-serif-ja)` | Headings, site name |
+| Token             | Stack                                                                                                                                              | Use                            |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `--font-serif`    | `"Source Serif 4"`, then `var(--font-serif-ja)`                                                                                                    | Headings, site name            |
 | `--font-serif-ja` | `"Hiragino Mincho ProN", "Yu Mincho", YuMincho, "BIZ UDPMincho", "Noto Serif JP", "Noto Serif CJK JP", "Source Han Serif JP", "MS PMincho", serif` | Japanese fallback (no webfont) |
-| `--font-sans` | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` | Body, UI, meta |
+| `--font-sans`     | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`                                                                                         | Body, UI, meta                 |
 
 Heading webfont: `public/fonts/source-serif-4.woff2` (107 KB, OFL). Variable, `wght` 400–700 and `opsz` 16–48,
 subset to latin + latin-ext + vietnamese. `font-display: swap`, preloaded in `index.html`.
@@ -82,6 +82,7 @@ Spacing scale (rem): `--space-1 0.25` · `--space-2 0.5` · `--space-3 1` · `--
 ## Components
 
 **Card** (`app-card`) — the one reusable content unit (blog posts, home "latest", coming-soon states).
+
 - Top hairline, padding-block `--space-4`, no background, no radius.
 - Meta line (muted, sm) → serif title (lg) → excerpt (fg, base).
 - If it has a link, the whole title is the link; hover turns the title `--accent`. External links open in a new tab with `rel="noopener"`.

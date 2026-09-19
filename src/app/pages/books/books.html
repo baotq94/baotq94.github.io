@@ -14,7 +14,10 @@
                 }
                 @if (book.rating; as rating) {
                   <span class="rating" lang="en">
-                    <span aria-hidden="true">{{ filled(rating) }}<span class="unfilled">{{ unfilled(rating) }}</span></span>
+                    <span aria-hidden="true"
+                      >{{ filled(rating)
+                      }}<span class="unfilled">{{ unfilled(rating) }}</span></span
+                    >
                     <span class="visually-hidden">, rated {{ rating }} out of 5</span>
                   </span>
                 }
@@ -39,7 +42,10 @@
     </section>
   } @empty {
     @if (!isLoading()) {
-      <app-card title="Coming soon" excerpt="Nothing here yet. In the meantime, the blog has related posts." />
+      <app-card
+        title="Coming soon"
+        excerpt="Nothing here yet. In the meantime, the blog has related posts."
+      />
     }
   }
 </app-page-shell>

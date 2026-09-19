@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "posts": "node scripts/build-posts.mjs",
     "test:posts": "node --test \"scripts/test/*.test.mjs\"",
     "prestart": "npm run posts",

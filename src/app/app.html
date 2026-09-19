@@ -3,7 +3,9 @@
     <a class="site-name" routerLink="/">baotq94</a>
     <nav aria-label="Main">
       @for (section of sections; track section.path) {
-      <a [routerLink]="section.path" routerLinkActive="active" ariaCurrentWhenActive="page">{{ section.label }}</a>
+        <a [routerLink]="section.path" routerLinkActive="active" ariaCurrentWhenActive="page">{{
+          section.label
+        }}</a>
       }
     </nav>
   </header>

@@ -4,7 +4,15 @@ import { readdir, readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import matter from 'gray-matter';
 import { marked } from 'marked';
-import { DEFAULT_LANG, describe, isHttpsUrl, isText, LANG_TAG, MATTER_OPTIONS, parseDate } from './posts.mjs';
+import {
+  DEFAULT_LANG,
+  describe,
+  isHttpsUrl,
+  isText,
+  LANG_TAG,
+  MATTER_OPTIONS,
+  parseDate,
+} from './posts.mjs';
 
 const YEAR = /^\d{4}$/;
 
@@ -43,17 +51,25 @@ export function parseBook(file, source) {
   }
 
   if (!isText(data.title)) fail('title', `required text, ${describe(data.title)}`);
-  if (data.author !== undefined && !isText(data.author)) fail('author', `must be text, ${describe(data.author)}`);
+  if (data.author !== undefined && !isText(data.author))
+    fail('author', `must be text, ${describe(data.author)}`);
   if (!isText(data.summary)) fail('summary', `required text, ${describe(data.summary)}`);
 
   const finished = parseFinished(data.finished);
-  if (!finished) fail('finished', `required year as YYYY or real calendar date as YYYY-MM-DD, ${describe(data.finished)}`);
+  if (!finished)
+    fail(
+      'finished',
+      `required year as YYYY or real calendar date as YYYY-MM-DD, ${describe(data.finished)}`,
+    );
 
   if (data.order !== undefined && !(Number.isInteger(data.order) && data.order >= 1)) {
     fail('order', `must be a whole number from 1, ${describe(data.order)}`);
   }
 
-  if (data.rating !== undefined && !(Number.isInteger(data.rating) && data.rating >= 1 && data.rating <= 5)) {
+  if (
+    data.rating !== undefined &&
+    !(Number.isInteger(data.rating) && data.rating >= 1 && data.rating <= 5)
+  ) {
     fail('rating', `must be a whole number from 1 to 5, ${describe(data.rating)}`);
   }
   if (data.tags !== undefined && !(Array.isArray(data.tags) && data.tags.every(isText))) {
@@ -104,9 +120,7 @@ export async function loadBooks(dir) {
   );
 
   const errors = results.flatMap((r) => r.errors);
-  const books = results
-    .flatMap((r) => (r.book ? [r.book] : []))
-    .sort(compareBooks);
+  const books = results.flatMap((r) => (r.book ? [r.book] : [])).sort(compareBooks);
 
   return { books, errors };
 }
