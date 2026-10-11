@@ -1,4 +1,5 @@
 ---
+status: post
 title: Older post
 date: 2026-01-31
 category: Notes

@@ -1,4 +1,4 @@
-// Reads and validates posts/*.md: front-matter plus a Markdown body. Used by build-posts.mjs and its tests.
+// Reads and validates posts/**/*.md: front-matter plus a Markdown body. Used by build-posts.mjs and its tests.
 // The shared validators below are also used by books.mjs.
 import { readdir, readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
@@ -60,6 +60,9 @@ export function parsePost(file, source) {
 
   if (!isText(data.title)) fail('title', `required text, ${describe(data.title)}`);
   if (!isText(data.category)) fail('category', `required text, ${describe(data.category)}`);
+  if (data.status !== 'draft' && data.status !== 'post') {
+    fail('status', `required draft or post, ${describe(data.status)}`);
+  }
 
   const date = parseDate(data.date);
   if (!date) fail('date', `required real calendar date as YYYY-MM-DD, ${describe(data.date)}`);
@@ -85,6 +88,7 @@ export function parsePost(file, source) {
       date: data.date,
       timestamp: date.getTime(),
       category: data.category.trim(),
+      status: data.status,
       excerpt: data.excerpt?.trim() ?? '',
       tags: data.tags ?? [],
       lang: data.lang ?? DEFAULT_LANG,
@@ -93,16 +97,42 @@ export function parsePost(file, source) {
   };
 }
 
-/** Reads every .md file in dir. Collects errors from all files instead of stopping at the first. */
+async function markdownFiles(dir) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const files = await Promise.all(
+    entries.map((entry) => {
+      const file = join(dir, entry.name);
+      if (entry.isDirectory()) return markdownFiles(file);
+      return entry.isFile() && entry.name.endsWith('.md') ? [file] : [];
+    }),
+  );
+  return files.flat().sort();
+}
+
+/** Reads Markdown recursively. Filenames remain the public slugs and must be unique. */
 export async function loadPosts(dir) {
-  const files = (await readdir(dir)).filter((f) => f.endsWith('.md')).sort();
+  const files = await markdownFiles(dir);
   const results = await Promise.all(
-    files.map(async (f) => parsePost(join(dir, f), await readFile(join(dir, f), 'utf8'))),
+    files.map(async (file) => parsePost(file, await readFile(file, 'utf8'))),
   );
 
   const errors = results.flatMap((r) => r.errors);
+  const slugs = new Map();
+  for (const [index, { post }] of results.entries()) {
+    if (!post) continue;
+    if (slugs.has(post.slug)) {
+      errors.push({
+        file: files[index],
+        field: 'slug',
+        message: `duplicate slug "${post.slug}" also used by ${slugs.get(post.slug)}`,
+      });
+    } else {
+      slugs.set(post.slug, files[index]);
+    }
+  }
   const posts = results
     .flatMap((r) => (r.post ? [r.post] : []))
+    .filter((post) => post.status === 'post')
     .sort((a, b) => b.timestamp - a.timestamp)
     .map(({ timestamp, ...post }) => post);
 

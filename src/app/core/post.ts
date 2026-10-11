@@ -4,6 +4,7 @@ export interface Post {
   /** ISO date, YYYY-MM-DD */
   date: string;
   category: string;
+  status: 'draft' | 'post';
   excerpt: string;
   tags: string[];
   /** BCP 47 language tag, e.g. 'en', 'vi', 'ja'. Set on the card so :lang() CSS applies. */
