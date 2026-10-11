@@ -36,6 +36,18 @@ lang: vi # optional, language tag (default en); ja/vi get typography tweaks
 The post body, in Markdown. Rendered at /blog/<file name without .md>/.
 ```
 
+Use a `mermaid` code fence for diagrams. The browser renders it after the page loads;
+prerendered pages keep the source as a fallback. Add `accTitle` and `accDescr` for accessibility.
+
+````markdown
+```mermaid
+flowchart TD
+    accTitle: Project publishing
+    accDescr: Review the project before publishing it.
+    A[Review] --> B[Publish]
+```
+````
+
 ## Books
 
 ```yaml

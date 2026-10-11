@@ -10,7 +10,7 @@
       }
     </header>
     @if (post.html) {
-      <div class="prose" [innerHTML]="post.html"></div>
+      <div class="prose" [innerHTML]="post.html" [appMermaid]="post.html"></div>
     } @else {
       <p class="empty" lang="en">Full post coming soon.</p>
     }
