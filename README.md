@@ -1,5 +1,3 @@
-# Personal site at <https://baotq94.github.io/>.
-
 ## Local commands
 
 | Command         | When                                                                                   |
