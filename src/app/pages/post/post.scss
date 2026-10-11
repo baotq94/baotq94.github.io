@@ -68,6 +68,21 @@ h1 {
       overflow-x: auto;
     }
 
+    .mermaid-diagram {
+      overflow-x: auto;
+      padding: var(--space-3);
+      background: #fff;
+      border: var(--border);
+      border-radius: 4px;
+
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin-inline: auto;
+      }
+    }
+
     img {
       max-width: 100%;
       height: auto;

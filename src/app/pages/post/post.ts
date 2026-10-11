@@ -3,11 +3,12 @@ import { Component, effect, inject, input } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { PostService } from '../../core/post.service';
+import { MermaidDirective } from './mermaid.directive';
 
 /** One post at /blog/:slug, prerendered for every file in posts/. */
 @Component({
   selector: 'app-post',
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, MermaidDirective],
   templateUrl: './post.html',
   styleUrl: './post.scss',
 })
