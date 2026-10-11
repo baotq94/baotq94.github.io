@@ -17,11 +17,18 @@ npx http-server dist/baotq94.github.io/browser -p 8080 -c-1
 
 ## Posts
 
+Organize posts in `posts/Backend/`, `posts/Cloud/`, `posts/Building/`, and `posts/Personal/`.
+The loader reads Markdown recursively. Filenames must be unique across folders because URLs use
+`/blog/<file name without .md>/`. Use `excerpt` for the description; the body is optional.
+Set `status: draft` while writing, then change it to `status: post` to publish. Drafts are validated
+but excluded from the generated JSON, listings, and prerendered pages.
+
 ```yaml
 ---
 title: Why I keep a reading log # required, text (quote numbers: "1984")
 date: 2026-09-12 # required, YYYY-MM-DD, must be a real date
 category: Notes # required, text
+status: draft # required, draft or post
 excerpt: Short notes compound. # optional
 tags: [books, habits] # optional, list of text
 lang: vi # optional, language tag (default en); ja/vi get typography tweaks

@@ -1,4 +1,4 @@
-// Scans posts/*.md → public/posts.json and books/*.md → public/books.json (both newest first).
+// Scans posts/**/*.md → public/posts.json and books/*.md → public/books.json (both newest first).
 // Runs before `npm start` and `npm run build`; exits 1 listing every invalid file.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { loadBooks } from './books.mjs';

@@ -16,7 +16,7 @@ description: Develop a feature or fix locally from an idea through repository ve
 
 - Make the smallest coherent change using existing patterns. Preserve unrelated user edits and avoid speculative abstractions or dependencies.
 - This site uses standalone Angular components, lazy routes, SCSS, and static prerendering. Keep browser APIs compatible with prerendering and update client/server routes together when needed.
-- Edit content in `posts/*.md` and `books/*.md`, following the front-matter rules in `README.md`. Regenerate JSON with `npm run posts`; never hand-edit or commit generated `public/posts.json` or `public/books.json`.
+- Edit content in `posts/**/*.md` and `books/*.md`, following the front-matter rules in `README.md`. Regenerate JSON with `npm run posts`; never hand-edit or commit generated `public/posts.json` or `public/books.json`.
 - Use npm and the committed lockfile. CI runs Node.js 24. Follow `.prettierrc`; format only the files changed by the task.
 - Keep secrets out of source and client assets. Preserve Angular's HTML sanitization when rendering Markdown.
 
