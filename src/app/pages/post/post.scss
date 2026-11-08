@@ -2,6 +2,13 @@
   display: block;
 }
 
+.back,
+.head,
+.empty {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
 .back {
   margin-bottom: var(--space-5);
   font-size: var(--text-sm);
@@ -43,6 +50,14 @@ h1 {
 
   // Rendered Markdown arrives via [innerHTML], outside view encapsulation.
   ::ng-deep {
+    // Keep prose readable while tables, code, and diagrams use the article width.
+    > :not(table, pre, figure, img, .original),
+    .original > :not(table, pre, figure, img) {
+      width: 100%;
+      max-width: var(--measure);
+      margin-inline: auto;
+    }
+
     :is(ul, ol, blockquote, pre, figure) {
       margin: 0;
     }
