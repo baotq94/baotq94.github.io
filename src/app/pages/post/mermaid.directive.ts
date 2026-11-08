@@ -26,6 +26,8 @@ export class MermaidDirective {
             suppressErrorRendering: true,
             theme: 'neutral',
             flowchart: { htmlLabels: false },
+            sequence: { useMaxWidth: false },
+            architecture: { useMaxWidth: false },
           });
           for (const block of blocks) {
             if (cancelled || !host.contains(block)) return;

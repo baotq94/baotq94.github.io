@@ -2,7 +2,7 @@
 title: "Authentication vs Authorization: OAuth, OIDC, and a Mobile Banking Flow"
 date: 2026-11-08
 status: post
-category: Backend
+category: Backend Engineering
 excerpt: "My notes on the identity terms I keep hearing at work."
 lang: en
 ---
@@ -11,12 +11,12 @@ I keep hearing these magic words at work: OAuth, OIDC, SAML, JWT, PKCE. Sometime
 
 ## 1. Popular standards and providers
 
-| Standard                  | Main purpose                       | What it standardizes                               | Typical use                       | Example providers / products                                             |
-| ------------------------- | ---------------------------------- | -------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------ |
-| **OAuth 2.0**             | Delegated authorization            | Grants, access tokens, scopes, authorization flows | Mobile app calling a banking API  | Okta, Auth0, Microsoft Entra ID, Amazon Cognito, Keycloak, Ping Identity |
-| **OpenID Connect (OIDC)** | Authentication on OAuth 2.0        | ID Token, identity claims, discovery, UserInfo     | Sign in and identify the customer | Okta, Auth0, Microsoft Entra ID, Amazon Cognito, Keycloak, Ping Identity |
-| **SAML 2.0**              | Federated authentication / SSO     | XML assertions and identity federation             | Employee login to enterprise apps | Okta, Auth0, Microsoft Entra ID, Keycloak, Ping Identity                 |
-| **FIDO2 / WebAuthn**      | Passwordless or MFA authentication | Public-key credentials, challenge-response         | Passkeys, device biometrics       | Okta, Microsoft Entra ID, Keycloak                                       |
+| Standard                  | Main purpose                       | What it standardizes                               | Example providers / products    |
+| ------------------------- | ---------------------------------- | -------------------------------------------------- | ------------------------------- |
+| **OAuth 2.0**             | Delegated authorization            | Grants, access tokens, scopes, authorization flows | Microsoft Entra ID, Okta, Auth0 |
+| **OpenID Connect (OIDC)** | Authentication on OAuth 2.0        | ID Token, identity claims, discovery, UserInfo     | Microsoft Entra ID, Okta, Auth0 |
+| **SAML 2.0**              | Federated authentication / SSO     | XML assertions and identity federation             | Microsoft Entra ID, Okta, Auth0 |
+| **FIDO2 / WebAuthn**      | Passwordless or MFA authentication | Public-key credentials, challenge-response         | Microsoft Entra ID, Okta        |
 
 ## 2. Mobile banking with Ionic/Capacitor + Apigee + Java + GCP
 

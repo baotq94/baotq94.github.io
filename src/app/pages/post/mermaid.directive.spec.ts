@@ -33,7 +33,11 @@ describe('MermaidDirective', () => {
     expect(fixture.nativeElement.querySelector('code').textContent).toBe('plain code');
     expect(fixture.nativeElement.querySelector('script')).toBeNull();
     expect(renderer.initialize).toHaveBeenCalledWith(
-      expect.objectContaining({ securityLevel: 'strict' }),
+      expect.objectContaining({
+        securityLevel: 'strict',
+        sequence: { useMaxWidth: false },
+        architecture: { useMaxWidth: false },
+      }),
     );
   });
 
