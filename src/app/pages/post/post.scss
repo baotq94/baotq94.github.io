@@ -34,7 +34,10 @@ h1 {
 
 .prose {
   display: grid;
+  // Wide Markdown content must not set the grid's minimum column width.
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
+  overflow-wrap: anywhere;
   padding-top: var(--space-4);
   border-top: var(--border);
 
@@ -68,6 +71,13 @@ h1 {
       overflow-x: auto;
     }
 
+    table {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-wrap: normal;
+    }
+
     .mermaid-diagram {
       overflow-x: auto;
       padding: var(--space-3);
@@ -81,6 +91,11 @@ h1 {
         height: auto;
         margin-inline: auto;
       }
+
+      // Keep wide diagrams readable; the figure scrolls only when they cannot fit.
+      > svg:is([aria-roledescription='sequence'], [aria-roledescription='architecture']) {
+        max-width: none;
+      }
     }
 
     img {
@@ -91,6 +106,7 @@ h1 {
     // Translated posts: the original text follows the translation, set in its own language.
     .original {
       display: grid;
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--space-3);
       margin-top: var(--space-5);
       padding-top: var(--space-4);
