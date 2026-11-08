@@ -2,6 +2,12 @@
   max-width: var(--measure);
   margin-inline: auto;
   padding-inline: var(--space-3);
+
+  // Articles can use the screen for tables and diagrams, with fluid side gutters.
+  &:has(app-post) {
+    max-width: none;
+    padding-inline: clamp(1rem, 3vw, 4rem);
+  }
 }
 
 // Sticky, not fixed: stays in the flow, so nothing needs padding to clear it.
