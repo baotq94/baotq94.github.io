@@ -11,12 +11,12 @@ I keep hearing these magic words at work: OAuth, OIDC, SAML, JWT, PKCE. Sometime
 
 ## 1. Popular standards and providers
 
-| Standard                  | Main purpose                       | What it standardizes                               | Example providers / products    |
-| ------------------------- | ---------------------------------- | -------------------------------------------------- | ------------------------------- |
-| **OAuth 2.0**             | Delegated authorization            | Grants, access tokens, scopes, authorization flows | Microsoft Entra ID, Okta, Auth0 |
-| **OpenID Connect (OIDC)** | Authentication on OAuth 2.0        | ID Token, identity claims, discovery, UserInfo     | Microsoft Entra ID, Okta, Auth0 |
-| **SAML 2.0**              | Federated authentication / SSO     | XML assertions and identity federation             | Microsoft Entra ID, Okta, Auth0 |
-| **FIDO2 / WebAuthn**      | Passwordless or MFA authentication | Public-key credentials, challenge-response         | Microsoft Entra ID, Okta        |
+| Standard                  | Main purpose                       | What it standardizes                               |
+| ------------------------- | ---------------------------------- | -------------------------------------------------- |
+| **OAuth 2.0**             | Delegated authorization            | Grants, access tokens, scopes, authorization flows |
+| **OpenID Connect (OIDC)** | Authentication on OAuth 2.0        | ID Token, identity claims, discovery, UserInfo     |
+| **SAML 2.0**              | Federated authentication / SSO     | XML assertions and identity federation             |
+| **FIDO2 / WebAuthn**      | Passwordless or MFA authentication | Public-key credentials, challenge-response         |
 
 ## 2. Mobile banking with Ionic/Capacitor + Apigee + Java + GCP
 
@@ -43,13 +43,13 @@ architecture-beta
     api:B --> T:bankdb
 ```
 
-| Component                    | Responsibility                                                  | Data it owns / checks                                              |
-| ---------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Mobile (OAuth public client) | Starts login, keeps temporary PKCE verifier, validates ID Token | `client_id`, `state`, `nonce`, tokens                              |
-| Auth Server + Identity DB    | Checks credentials/MFA; issues signed tokens                    | User identity, password **hash**, MFA, grants, signing private key |
-| Apigee (API gateway)         | Validates **access token** and scopes                           | Trusted issuer, audience, JWKS public keys                         |
-| Java Spring Boot             | Enforces account ownership; handles business logic              | `sub` → customer mapping, account permissions                      |
-| Banking DB                   | Stores customer/accounts/transactions                           | Never trusts an arbitrary account ID from the app                  |
+| Component                    | Responsibility                                                  |
+| ---------------------------- | --------------------------------------------------------------- |
+| Mobile (OAuth public client) | Starts login, keeps temporary PKCE verifier, validates ID Token |
+| Auth Server + Identity DB    | Checks credentials/MFA; issues signed tokens                    |
+| Apigee (API gateway)         | Validates **access token** and scopes                           |
+| Java Spring Boot             | Enforces account ownership; handles business logic              |
+| Banking DB                   | Stores customer/accounts/transactions                           |
 
 ### End-to-end sequence
 
@@ -93,6 +93,8 @@ sequenceDiagram
 
 ### What goes in and what comes out
 
+The step numbers match the numbered arrows in the sequence diagram. Related arrows are grouped together below.
+
 #### Step 1. The app prepares the login
 
 Before opening the browser, the app creates a PKCE verifier, its challenge, a `state` value and a `nonce`. The verifier stays in the app for now.
@@ -121,7 +123,7 @@ Before opening the browser, the app creates a PKCE verifier, its challenge, a `s
 
 The `code_challenge` calculation is `BASE64URL(SHA256(ASCII(code_verifier)))`.
 
-#### Step 2. The app opens the authorization page
+#### Steps 2–3. The app opens the authorization page
 
 **Input:** An authorization request. The query parameters are split across lines for readability.
 
@@ -145,7 +147,7 @@ Auth Server transaction: client=bank-mobile, challenge=E9Mel...stw-cM,
                          method=S256, state=state-456, nonce=nonce-789
 ```
 
-#### Step 3. The customer signs in
+#### Step 4. The customer signs in
 
 The provider handles the login screen and any MFA. The Ionic app doesn't need to collect the banking password itself.
 
@@ -168,7 +170,7 @@ Associated client: bank-mobile
 Associated PKCE challenge: E9Mel...stw-cM
 ```
 
-#### Step 4. The browser returns to the app
+#### Steps 5–6. The browser returns to the app
 
 **Input:** The successful login transaction and its registered callback address.
 
@@ -185,18 +187,22 @@ HTTP/1.1 302 Found
 Location: https://login.bank.example/callback?code=CODE_123&state=state-456
 ```
 
-#### Step 5. The app exchanges the code for tokens
+#### Steps 7–9. The app exchanges the code for tokens
 
 Now the app sends the original verifier. The Auth Server hashes it and compares the result with the saved challenge.
 
-**Input:** A form-encoded token request.
+**Input:** A form-encoded token request. The body is split across lines for readability.
 
 ```http
 POST /token HTTP/1.1
 Host: auth.bank.example
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=authorization_code&client_id=bank-mobile&code=CODE_123&redirect_uri=https%3A%2F%2Flogin.bank.example%2Fcallback&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
+grant_type=authorization_code
+&client_id=bank-mobile
+&code=CODE_123
+&redirect_uri=https%3A%2F%2Flogin.bank.example%2Fcallback
+&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
 ```
 
 **Output:** A token response after those checks pass.
@@ -210,7 +216,7 @@ grant_type=authorization_code&client_id=bank-mobile&code=CODE_123&redirect_uri=h
 }
 ```
 
-#### Step 6. The app validates the ID Token
+#### Step 10. The app validates the ID Token
 
 This is where the app checks who signed in. An OIDC library handles the signature and claim checks using the provider's trusted configuration and public keys.
 
@@ -238,7 +244,7 @@ This is where the app checks who signed in. An OIDC library handles the signatur
 
 The Auth Server holds the private signing key. The app uses the corresponding public key, found through the trusted provider's discovery document and `jwks_uri`.
 
-#### Step 7. The app asks Apigee for the balance
+#### Step 11. The app asks Apigee for the balance
 
 **Input:**
 
@@ -254,9 +260,9 @@ Host: api.bank.example
 Authorization: Bearer <signed-access-JWT>
 ```
 
-#### Step 8. Apigee checks the access token
+#### Steps 12–13. Apigee checks the access token
 
-**Input:** The bearer token from step 7. Its decoded payload looks like this:
+**Input:** The bearer token from step 11. Its decoded payload looks like this:
 
 ```json
 {
@@ -276,7 +282,7 @@ GET /accounts/123/balance
 Authorization: Bearer <signed-access-JWT>
 ```
 
-#### Step 9. Java looks up the customer's account
+#### Steps 14–15. Java looks up the customer's account
 
 **Input:**
 
@@ -297,7 +303,7 @@ For this example, the customer mapping is `user-42 → C9001`. The database look
 }
 ```
 
-#### Step 10. The balance comes back to the screen
+#### Steps 16–18. The balance comes back to the screen
 
 **Input:**
 
