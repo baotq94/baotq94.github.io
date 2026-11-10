@@ -7,7 +7,7 @@ excerpt: "My notes on SAML assertions, company login, and an HR portal with SSO.
 lang: en
 ---
 
-I keep hearing these magic words at work: OAuth, OIDC, SAML, JWT, PKCE. Sometimes they all turn up in the same meeting, and it's easy to lose track of which one does what. So I'm keeping a note here to make sense of the common ones and how they fit together.
+I keep hearing the same acronyms at work: OAuth, OIDC, SAML, JWT, PKCE. Sometimes they all come up in the same meeting, and it's easy to lose track of which one does what. So I put together this note to make sense of the common ones and how they fit together.
 
 ## 1. Popular standards and providers
 
@@ -20,11 +20,7 @@ I keep hearing these magic words at work: OAuth, OIDC, SAML, JWT, PKCE. Sometime
 
 ## 2. Enterprise HR portal with Angular + Java Spring Boot + SAML 2.0
 
-Let's say we're building an HR portal where employees check their remaining leave. The company already has an identity provider, and employees use their company accounts to sign in. Our portal trusts that provider instead of keeping another set of passwords.
-
-This is a common setting for SAML: enterprise web apps such as HR portals, ERP systems, CRM tools, and internal admin sites. The company's identity provider might be Microsoft Entra ID, Okta, or another SAML provider. Microsoft's [SAML architecture overview](https://learn.microsoft.com/en-us/entra/architecture/auth-saml) describes this enterprise SSO use case.
-
-For this example, Angular and the Java backend are served under `https://hr.example.com`. Java is the **Service Provider (SP)**, and the company login service is the **Identity Provider (IdP)**. We use an SP-initiated login: the employee starts at the HR portal, which sends them to the IdP.
+Let's say we're building an HR portal where employees check their remaining leave. Java is the **Service Provider (SP)**, and the company login service is the **Identity Provider (IdP)**.
 
 ### Components
 
@@ -54,7 +50,7 @@ architecture-beta
 | Java Spring Boot (SP)   | Starts SAML login, validates the response, and establishes an application session |
 | HR DB                   | Maps the federated identity to an employee and stores leave records               |
 
-Before login works, the administrators configure trust on both sides. The IdP knows the SP's **entity ID** and **Assertion Consumer Service (ACS) URL**. The SP knows the IdP's entity ID, SSO endpoint, and trusted signing certificate from verified metadata. An entity ID identifies a party; it doesn't have to be a page a browser can visit.
+Administrators configure trust on both sides: the IdP knows the SP's **entity ID** and **Assertion Consumer Service (ACS) URL**, while the SP knows the IdP's entity ID, SSO endpoint, and trusted signing certificate from verified metadata. An entity ID identifies a party and doesn't have to point to a page a browser can visit.
 
 ```text
 SP entity ID: https://hr.example.com/saml/metadata
@@ -105,203 +101,102 @@ sequenceDiagram
 
 ### What goes in and what comes out
 
-The step numbers match the numbered arrows in the sequence diagram. The XML and HTTP examples are shortened for readability. The signatures, encoded messages, and session values are placeholders, not working credentials.
+#### Steps 1–5. Start login and redirect to the IdP
 
-#### Steps 1–3. The employee starts login
+**Input — HTTP:** The sign-in button opens Spring Security's login endpoint.
 
-The sign-in button navigates the browser to Java. Java creates an `AuthnRequest` and remembers its ID so it can match the response to this login attempt. It also creates an opaque `RelayState` value mapped to the intended local destination.
-
-**Input:** The configured company SAML registration and the page the employee wants to open.
-
-```json
-{
-  "registrationId": "company",
-  "returnTo": "/leave"
-}
+```http
+GET /saml2/authenticate/company HTTP/1.1
+Host: hr.example.com
 ```
 
-**Output:** An authentication request and temporary server-side login state.
+**Output — XML:** Java creates an `AuthnRequest`. This excerpt shows who is requesting login and where the response should go; other required fields and namespace declarations are omitted.
 
 ```xml
 <samlp:AuthnRequest
-    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
     ID="_request123"
-    Version="2.0"
-    IssueInstant="2026-11-10T09:00:00Z"
     Destination="https://login.company.example/saml/sso"
-    AssertionConsumerServiceURL="https://hr.example.com/login/saml2/sso/company"
-    ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST">
+    AssertionConsumerServiceURL="https://hr.example.com/login/saml2/sso/company">
   <saml:Issuer>https://hr.example.com/saml/metadata</saml:Issuer>
 </samlp:AuthnRequest>
 ```
 
-```json
-{
-  "requestId": "_request123",
-  "relayState": "relay-456",
-  "returnTo": "/leave"
-}
-```
-
-Here, `company` is a local Spring Security registration ID. The SAML entity IDs identify the SP and IdP across the federation.
-
-#### Steps 4–5. The browser takes the request to the IdP
-
-This example uses the HTTP-Redirect binding for the request. The SAML library DEFLATE-compresses the XML, Base64-encodes it, then URL-encodes the result. If the registration requires signed requests, it also signs the redirect query according to that binding.
-
-**Input:** The `AuthnRequest`, IdP SSO URL, and saved `RelayState`.
-
-**Output:** A redirect followed by a browser request to the company login service. The URL is split across lines for readability.
+**Output — HTTP:** Java saves the request ID and redirects the browser. `SAMLRequest` contains the compressed, Base64-encoded, then URL-encoded XML. `RelayState` is an opaque value mapped to `/leave` on the server.
 
 ```http
 HTTP/1.1 302 Found
-Location: https://login.company.example/saml/sso
-  ?SAMLRequest=<url-encoded-base64-deflated-XML>
-  &RelayState=relay-456
+Location: https://login.company.example/saml/sso?SAMLRequest=<encoded-XML>&RelayState=relay-456
 ```
 
-`RelayState` helps restore the destination after login. The SP checks it against its saved state and redirects only to an allowed local path.
+#### Steps 8–9. Return the SAML response
 
-#### Steps 6–7. The employee signs in at the company IdP
-
-The IdP validates the request against the registered SP and handles authentication. The portal doesn't collect the company password.
-
-**Input:** The login interaction on the IdP's own page, for example:
-
-```text
-Company account: demo.employee@company.example
-Password: <entered only on the IdP page>
-MFA: <completed according to company policy>
-```
-
-**Output:** An authenticated identity at the IdP.
-
-```json
-{
-  "subject": "employee-42",
-  "authenticated": true,
-  "requestId": "_request123"
-}
-```
-
-If an acceptable IdP session already exists, the provider may complete this without asking for the password again. That's what makes opening another federated app feel like single sign-on; company policy can still require fresh authentication or MFA.
-
-#### Steps 8–9. The browser posts the SAML response to Java
-
-The IdP creates a SAML response containing an assertion about the employee. In this example it signs the assertion with its private key and sends the browser an auto-submitting HTML form targeting the registered ACS URL.
-
-**Input:** The authenticated employee, the original request, and the configured attribute mappings.
-
-Below is a shortened decoded response. The `ds:Signature` comment represents a real XML signature that a library must verify; this sample is not a complete, verifiable response.
+**Input — XML:** After login, the IdP creates a response containing a signed assertion. This decoded excerpt shows the subject, intended application, request correlation, and expiry; namespaces, the signature, and other required fields are omitted.
 
 ```xml
 <samlp:Response
-    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-    xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
-    ID="_response789"
-    Version="2.0"
-    IssueInstant="2026-11-10T09:01:00Z"
     InResponseTo="_request123"
     Destination="https://hr.example.com/login/saml2/sso/company">
-  <saml:Issuer>https://login.company.example/saml/metadata</saml:Issuer>
-  <samlp:Status>
-    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
-  </samlp:Status>
-  <saml:Assertion ID="_assertion789" Version="2.0"
-      IssueInstant="2026-11-10T09:01:00Z">
+  <saml:Assertion>
     <saml:Issuer>https://login.company.example/saml/metadata</saml:Issuer>
-    <!-- ds:Signature over this assertion omitted -->
+    <!-- Signature covering this assertion omitted -->
     <saml:Subject>
-      <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">employee-42</saml:NameID>
-      <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
-        <saml:SubjectConfirmationData
-            InResponseTo="_request123"
-            Recipient="https://hr.example.com/login/saml2/sso/company"
-            NotOnOrAfter="2026-11-10T09:06:00Z" />
-      </saml:SubjectConfirmation>
+      <saml:NameID>employee-42</saml:NameID>
     </saml:Subject>
-    <saml:Conditions NotBefore="2026-11-10T09:00:30Z"
-        NotOnOrAfter="2026-11-10T09:06:00Z">
+    <saml:Conditions NotOnOrAfter="2026-11-10T09:06:00Z">
       <saml:AudienceRestriction>
         <saml:Audience>https://hr.example.com/saml/metadata</saml:Audience>
       </saml:AudienceRestriction>
     </saml:Conditions>
-    <saml:AuthnStatement AuthnInstant="2026-11-10T09:00:50Z">
-      <saml:AuthnContext>
-        <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef>
-      </saml:AuthnContext>
-    </saml:AuthnStatement>
-    <saml:AttributeStatement>
-      <saml:Attribute Name="email">
-        <saml:AttributeValue>demo.employee@company.example</saml:AttributeValue>
-      </saml:Attribute>
-    </saml:AttributeStatement>
   </saml:Assertion>
 </samlp:Response>
 ```
 
-The authentication context here illustrates a password-based login over a protected connection. SAML does not make MFA mandatory; the IdP policy and agreed context determine what authentication is required.
-
-**Output:** The browser submits the form as an HTTP POST. For this binding, `SAMLResponse` is the Base64-encoded XML, then form-encoded; it isn't DEFLATE-compressed like the redirect request above.
+**Output — HTTP:** The IdP sends an auto-submitting form to the browser, which posts it to the ACS. `SAMLResponse` contains Base64-encoded XML, then form-encoded for transport.
 
 ```http
 POST /login/saml2/sso/company HTTP/1.1
 Host: hr.example.com
 Content-Type: application/x-www-form-urlencoded
 
-SAMLResponse=<form-encoded-base64-response-XML>&RelayState=relay-456
+SAMLResponse=<encoded-XML>&RelayState=relay-456
 ```
 
-The browser carries the message between the two systems. Java uses the IdP's trusted public signing certificate to check the assertion. Base64 is encoding, so HTTPS still matters; assertion encryption is a separate SAML feature.
+#### Step 10. Validate the response and assertion
 
-#### Step 10. Java validates the response and assertion
-
-**Input:** The posted message, the saved login request, and the configured trust information.
-
-```json
-{
-  "expectedIssuer": "https://login.company.example/saml/metadata",
-  "expectedAudience": "https://hr.example.com/saml/metadata",
-  "expectedRecipient": "https://hr.example.com/login/saml2/sso/company",
-  "expectedRequestId": "_request123",
-  "checkTime": "2026-11-10T09:01:05Z"
-}
-```
-
-The SP verifies the trusted signature and consumes the assertion covered by it. It checks success status, issuer, audience, destination, recipient, validity windows, and `InResponseTo` correlation with the outstanding request. This SP-initiated design rejects unsolicited responses and reused login responses, with consumed request state and replay tracking as needed.
-
-I would use Spring Security's SAML support for parsing and validation, then verify the application's correlation and replay behavior. XML signature handling is too easy to get wrong with a hand-written parser. Spring's [login overview](https://docs.spring.io/spring-security/reference/servlet/saml2/login/overview.html) shows where this authentication happens.
-
-**Output:** A verified federated identity, ready for local employee mapping.
-
-```json
-{
-  "authenticated": true,
-  "issuer": "https://login.company.example/saml/metadata",
-  "subject": "employee-42",
-  "email": "demo.employee@company.example"
-}
-```
-
-#### Steps 11–13. Java maps the identity and establishes an HR session
-
-**Input:** The trusted issuer and subject. We use that pair as the identity key rather than treating a changeable email address as the employee ID.
+**Input — validation context (illustrative text):** Java checks the posted XML against its trusted configuration and saved request.
 
 ```text
-(https://login.company.example/saml/metadata, employee-42) → E1042
+Trusted issuer:    https://login.company.example/saml/metadata
+Expected audience: https://hr.example.com/saml/metadata
+Expected ACS:      https://hr.example.com/login/saml2/sso/company
+Saved request ID:  _request123
+Check time:        2026-11-10T09:01:05Z
+Signing key:       trusted IdP public key from its certificate
 ```
 
-**Output:** The database returns an active employee and locally assigned permissions. Java rotates the session ID after authentication and redirects the browser to the saved destination.
+The backend verifies the signature covering the assertion it uses, then checks success status, issuer, audience, destination, recipient, validity windows, and request correlation.
+
+**Output — verified identity:**
 
 ```json
 {
-  "employeeId": "E1042",
-  "active": true,
-  "permissions": ["leave.read.self"]
+  "issuer": "https://login.company.example/saml/metadata",
+  "subject": "employee-42",
+  "authenticated": true
 }
 ```
+
+#### Steps 11–13. Map the employee and create a session
+
+**Input — identity mapping:**
+
+```text
+(https://login.company.example/saml/metadata, employee-42)
+  → employeeId: E1042
+  → permission: leave.read.self
+```
+
+**Output — HTTP:** Java establishes the local session, rotates the session ID, and redirects to the saved page.
 
 ```http
 HTTP/1.1 302 Found
@@ -309,11 +204,9 @@ Set-Cookie: __Host-HRSESSION=<opaque-session-id>; Path=/; Secure; HttpOnly; Same
 Location: /leave
 ```
 
-This is the application's post-login session cookie, not a SAML requirement. Because the ACS receives a cross-site POST, the temporary login-state mechanism must also work on that callback. A separate short-lived correlation cookie may need `SameSite=None; Secure`, depending on the deployment; a `Lax` cookie generally won't accompany that POST. The app also needs CSRF protection for state-changing session-authenticated API calls, with SAML-specific handling for the ACS.
+#### Steps 14–19. Read the leave balance
 
-#### Steps 14–17. The portal requests the employee's leave balance
-
-**Input:** Angular calls the same-origin API. The browser attaches the HR session cookie automatically; JavaScript doesn't read the `HttpOnly` cookie.
+**Input — HTTP:** Angular calls the API, and the browser attaches the session cookie.
 
 ```http
 GET /api/me/leave HTTP/1.1
@@ -321,25 +214,9 @@ Host: hr.example.com
 Cookie: __Host-HRSESSION=<opaque-session-id>
 ```
 
-Java resolves `E1042` from the server-side session and checks `leave.read.self`. The database query uses that employee ID rather than trusting an arbitrary employee ID supplied by the browser.
+Java gets `E1042` from the session, checks `leave.read.self`, and reads that employee's balance.
 
-**Output:** The matching HR record.
-
-```json
-{
-  "employeeId": "E1042",
-  "remainingDays": 12,
-  "year": 2026
-}
-```
-
-The SAML assertion authenticated the employee. The HR application still decides which records that employee can access.
-
-#### Steps 18–19. The leave balance comes back to the screen
-
-**Input:** The employee's leave record.
-
-**Output:** An API response that Angular displays as “12 days remaining.”
+**Output — HTTP with JSON body:** Angular displays “12 days remaining.”
 
 ```http
 HTTP/1.1 200 OK
@@ -348,11 +225,9 @@ Content-Type: application/json
 { "employeeId": "E1042", "remainingDays": 12, "year": 2026 }
 ```
 
-The browser now uses the HR session for requests. It doesn't attach the SAML XML to every API call. Opening another app that trusts the same IdP starts a separate SAML exchange and creates that app's own session, often reusing the existing company login. Logging out of HR alone doesn't necessarily end the IdP session or the sessions in other apps.
-
 ### Summary
 
-The company IdP signs an assertion about the employee. Java validates it, maps the employee to a local account, and establishes an HR session. Once I separate the company login from the portal's own session and permissions, the flow is much easier to follow.
+The IdP proves who signed in; the HR portal maps that identity to an employee and creates its own session. Later API requests use the session cookie, while the backend enforces employee permissions.
 
 ### References
 
