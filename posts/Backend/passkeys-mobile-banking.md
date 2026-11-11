@@ -7,8 +7,6 @@ excerpt: "My notes on passkey registration, passwordless login, and how a bank a
 lang: en
 ---
 
-I keep hearing the same acronyms at work: OAuth, OIDC, SAML, JWT, PKCE. Sometimes they all come up in the same meeting, and it's easy to lose track of which one does what. So I put together this note to make sense of the common ones and how they fit together.
-
 ## 1. Popular standards and providers
 
 | Standard                  | Main purpose                       | What it standardizes                               |
@@ -20,35 +18,37 @@ I keep hearing the same acronyms at work: OAuth, OIDC, SAML, JWT, PKCE. Sometime
 
 ## 2. Mobile banking with Ionic/Capacitor + WebAuthn + Apigee + Java + GCP
 
-Let's use the same bank as the OAuth/OIDC guide: an Ionic app wrapped with Capacitor, Apigee, and Java Spring Boot on GKE. This time, the customer signs in with a **passkey** instead of entering a password.
-
 A passkey is a public/private key credential. The bank stores the **public key**; the passkey provider protects the **private key**. Face ID, Touch ID, or a device PIN approves its use locally. The bank receives a signed response, without receiving biometric data.
 
-**WebAuthn** handles that authentication. **OIDC + PKCE** still gives the app its identity and access tokens.
+**WebAuthn** handles that authentication. **OIDC + PKCE** gives the app its identity and access tokens.
 
 ### Components
 
 ```mermaid
-architecture-beta
-    group identity(cloud)[Bank Identity]
-    group banking(cloud)[Banking on GCP]
+flowchart TB
+    accTitle: Mobile banking components with passkey authentication
+    accDescr: The app uses the system browser and passkey provider to authenticate with the bank identity service, then calls Java through Apigee.
+    mobile[Ionic Mobile App]
+    browser[System Auth Browser]
+    device[Passkey Provider]
 
-    service mobile(internet)[Ionic Mobile App]
-    service browser(internet)[System Auth Browser]
-    service device(server)[Platform Passkey]
-    service auth(server)[OIDC and WebAuthn RP] in identity
-    service credentials(database)[Credential Store] in identity
-    service gateway(server)[Apigee] in banking
-    service api(server)[Java on GKE] in banking
-    service bankdb(database)[Banking DB] in banking
+    subgraph identity[Bank Identity]
+        auth[OIDC Auth Server and Relying Party]
+        credentials[(Credential Store)]
+        auth --> credentials
+    end
 
-    mobile:R --> L:browser
-    browser:R --> L:auth
-    browser:B --> T:device
-    auth:B --> T:credentials
-    mobile:B --> T:gateway
-    gateway:R --> L:api
-    api:B --> T:bankdb
+    subgraph banking[Banking on GCP]
+        gateway[Apigee]
+        api[Java on GKE]
+        bankdb[(Banking DB)]
+        gateway --> api --> bankdb
+    end
+
+    mobile --> browser
+    browser --> auth
+    browser --> device
+    mobile --> gateway
 ```
 
 | Component                        | Responsibility                                                                   |
@@ -58,29 +58,6 @@ architecture-beta
 | Auth Server + Credential Store   | Acts as the WebAuthn Relying Party (RP), verifies credentials, and issues tokens |
 | Apigee                           | Validates the access token and scopes                                            |
 | Java Spring Boot + Banking DB    | Checks account ownership and returns the balance                                 |
-
-WebAuthn runs on the login page in the **system authentication browser**. For this example, the RP ID is `auth.bank.example` and the expected origin is `https://auth.bank.example`.
-
-### One-time setup: register a passkey
-
-The customer first signs in through a trusted method, such as password + MFA, then chooses **Create passkey**.
-
-1. The Auth Server creates a fresh challenge and registration options tied to that authenticated session.
-2. The page calls `navigator.credentials.create()`. After local approval, the authenticator creates a key pair for the bank.
-3. The page sends the registration response to the Auth Server. A WebAuthn library checks the challenge, origin, RP ID hash, user presence and verification, and registration data.
-4. The server consumes the challenge and stores the credential ID and public key against the customer.
-
-**Output — illustrative stored credential:**
-
-```json
-{
-  "userId": "user-42",
-  "credentialId": "Y3JlZC1hYmMxMjM",
-  "publicKeyCose": "<stored-public-key>"
-}
-```
-
-Some passkeys sync across devices through a provider; others stay on one authenticator. The private key is never sent to the bank. The login below assumes registration is complete.
 
 ### End-to-end sequence
 
@@ -93,7 +70,7 @@ sequenceDiagram
     participant App as Ionic App
     participant Browser as System Browser
     participant Device as Passkey Provider
-    participant Auth as Auth Server and RP
+    participant Auth as Auth Server and Relying Party
     participant GW as Apigee
     participant API as Java API and DB
 
@@ -130,9 +107,7 @@ sequenceDiagram
     end
 ```
 
-### What goes in and what comes out
-
-The step numbers match the numbered arrows in the sequence diagram. Related arrows are grouped together below. Endpoints and payloads are illustrative.
+### What goes in and comes out
 
 #### Steps 1–3. Open the bank's login page
 
@@ -190,8 +165,6 @@ The signature covers `authenticatorData || SHA256(clientDataJSON bytes)`. Togeth
 
 **Input:** The browser posts the assertion to `/webauthn/auth/verify`. The Auth Server loads the stored public key and expected login context.
 
-A WebAuthn library verifies the signature, `webauthn.get` type, challenge, origin, RP ID hash, user-presence and verification flags, and credential-to-user mapping. The server rejects expired or reused challenges and consumes the challenge after success.
-
 **Output — internal authenticated identity:**
 
 ```json
@@ -222,7 +195,7 @@ The app exchanges the code at `/token` with its original `code_verifier`, client
 }
 ```
 
-The app's OIDC library validates the ID Token's signature, issuer, audience, expiry, and saved nonce. This is the same token flow as the OAuth/OIDC guide; only the customer's authentication method changed.
+The app's OIDC library validates the ID Token's signature, issuer, audience, expiry, and saved nonce. This is the same token flow as the [OAuth/OIDC guide](/blog/oauth-oidc-mobile-banking-guide); only the customer's authentication method changed.
 
 #### Steps 17–22. Read the customer's balance
 
@@ -248,8 +221,6 @@ Content-Type: application/json
 ### Summary
 
 The passkey proves who is signing in, OIDC + PKCE gives the app tokens, and the access token carries later API requests through Apigee. Java still checks which accounts the customer can access.
-
-For production, protect registration with session and CSRF controls, support passkey recovery and revocation, and store tokens securely. High-risk actions such as transfers need their own authorization and any required step-up checks.
 
 ### References
 

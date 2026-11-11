@@ -4,7 +4,20 @@ import { readdir, readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, join } from 'node:path';
 import matter from 'gray-matter';
-import { marked } from 'marked';
+import { Marked, Renderer } from 'marked';
+
+const SITE_ORIGIN = 'https://baotq94.github.io';
+const markdown = new Marked({
+  renderer: {
+    link(token) {
+      const html = Renderer.prototype.link.call(this, token);
+      const url = new URL(token.href, SITE_ORIGIN);
+      return ['https:', 'http:'].includes(url.protocol) && url.origin !== SITE_ORIGIN
+        ? html.replace('<a ', '<a target="_blank" rel="noopener noreferrer" ')
+        : html;
+    },
+  },
+});
 
 // gray-matter forwards options to its bundled js-yaml. JSON_SCHEMA keeps `date:` as the
 // literal text; the default schema would turn 2026-02-30 into a Date for March 2.
@@ -92,7 +105,7 @@ export function parsePost(file, source) {
       excerpt: data.excerpt?.trim() ?? '',
       tags: data.tags ?? [],
       lang: data.lang ?? DEFAULT_LANG,
-      html: marked.parse(content, { async: false }).trim(),
+      html: markdown.parse(content, { async: false }).trim(),
     },
   };
 }
