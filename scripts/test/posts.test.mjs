@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { JSDOM } from 'jsdom';
 import { loadPosts, parseDate, parsePost } from '../posts.mjs';
 
 const fixtures = join(import.meta.dirname, 'fixtures');
@@ -135,6 +136,40 @@ describe('parseDate', () => {
 });
 
 describe('parsePost', () => {
+  it('opens external Markdown links in a new tab while keeping local navigation in place', () => {
+    const { post, errors } = parsePost(
+      'links.md',
+      `---
+title: Links
+date: 2026-11-11
+category: Notes
+status: post
+---
+[**W3C**](https://www.w3.org/TR/webauthn-3/ "Specification")
+[HTTP](http://example.com)
+[Protocol relative](//example.com/docs)
+[Local](/blog/another-post)
+[Section](#references)
+[Same site](https://baotq94.github.io/blog)
+[Email](mailto:hello@example.com)
+`,
+    );
+    assert.deepEqual(errors, []);
+    const document = new JSDOM(post.html).window.document;
+    const links = [...document.querySelectorAll('a')];
+    assert.equal(links.length, 7);
+    for (const link of links.slice(0, 3)) {
+      assert.equal(link.target, '_blank');
+      assert.equal(link.rel, 'noopener noreferrer');
+    }
+    for (const link of links.slice(3)) {
+      assert.equal(link.hasAttribute('target'), false);
+    }
+    assert.equal(links[0].getAttribute('href'), 'https://www.w3.org/TR/webauthn-3/');
+    assert.equal(links[0].title, 'Specification');
+    assert.equal(links[0].querySelector('strong').textContent, 'W3C');
+  });
+
   for (const status of ['draft', 'post']) {
     it(`accepts status ${status}`, () => {
       const { post, errors } = parsePost(
