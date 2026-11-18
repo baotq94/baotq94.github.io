@@ -40,6 +40,9 @@ h1 {
 }
 
 .prose {
+  --code-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --surface: color-mix(in srgb, var(--fg) 5%, var(--bg));
+
   display: grid;
   // Wide Markdown content must not set the grid's minimum column width.
   grid-template-columns: minmax(0, 1fr);
@@ -77,9 +80,21 @@ h1 {
     }
 
     blockquote {
-      padding-inline-start: var(--space-3);
-      border-inline-start: var(--border);
-      color: var(--muted);
+      display: grid;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-inline-start: 3px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      background: var(--surface);
+    }
+
+    code {
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      background: var(--surface);
+      font-family: var(--code-font);
+      font-size: 0.875em;
+      box-decoration-break: clone;
     }
 
     pre {
@@ -87,15 +102,65 @@ h1 {
       max-width: var(--measure);
       justify-self: center;
       overflow-x: auto;
+      padding: var(--space-3);
+      border: var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      font-family: var(--code-font);
+      font-size: var(--text-sm);
+      line-height: 1.7;
+      tab-size: 4;
+      overflow-wrap: normal;
+
+      code {
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        font-size: inherit;
+      }
     }
 
-    table {
-      display: block;
+    .table-scroll {
       width: 100%;
       max-width: var(--measure);
       justify-self: center;
       overflow-x: auto;
+      border: var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
       overflow-wrap: normal;
+      border-spacing: 0;
+      font-size: var(--text-sm);
+
+      :is(th, td) {
+        padding: 0.75rem var(--space-3);
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--surface);
+        text-align: start;
+        font-weight: 600;
+      }
+
+      td {
+        border-top: var(--border);
+      }
+
+      tbody tr:nth-child(even) {
+        background: color-mix(in srgb, var(--fg) 2%, var(--bg));
+      }
+    }
+
+    li + li {
+      margin-top: var(--space-2);
+    }
+
+    li > :is(p, ul, ol) + :is(p, ul, ol) {
+      margin-top: var(--space-2);
     }
 
     .mermaid-diagram {

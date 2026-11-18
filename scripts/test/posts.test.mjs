@@ -136,6 +136,33 @@ describe('parseDate', () => {
 });
 
 describe('parsePost', () => {
+  it('wraps Markdown tables for scrolling while preserving table semantics and cell content', () => {
+    const { post, errors } = parsePost(
+      'table.md',
+      `---
+title: Table
+date: 2026-11-18
+category: Notes
+status: post
+---
+| Interface | Example |
+| --- | ---: |
+| \`Predicate<T>\` | **true** |
+`,
+    );
+    assert.deepEqual(errors, []);
+    const document = new JSDOM(post.html).window.document;
+    const region = document.querySelector('.table-scroll');
+    assert.equal(region.getAttribute('role'), 'region');
+    assert.equal(region.getAttribute('aria-label'), 'Article table');
+    assert.equal(region.tabIndex, 0);
+    const table = region.querySelector(':scope > table');
+    assert.equal(table.querySelectorAll('thead th').length, 2);
+    assert.equal(table.querySelector('tbody td code').textContent, 'Predicate<T>');
+    assert.equal(table.querySelector('tbody td strong').textContent, 'true');
+    assert.equal(table.querySelector('tbody td:last-child').getAttribute('align'), 'right');
+  });
+
   it('opens external Markdown links in a new tab while keeping local navigation in place', () => {
     const { post, errors } = parsePost(
       'links.md',

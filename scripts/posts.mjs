@@ -9,6 +9,10 @@ import { Marked, Renderer } from 'marked';
 const SITE_ORIGIN = 'https://baotq94.github.io';
 const markdown = new Marked({
   renderer: {
+    table(token) {
+      const html = Renderer.prototype.table.call(this, token);
+      return `<div class="table-scroll" role="region" aria-label="Article table" tabindex="0">${html}</div>\n`;
+    },
     link(token) {
       const html = Renderer.prototype.link.call(this, token);
       const url = new URL(token.href, SITE_ORIGIN);
